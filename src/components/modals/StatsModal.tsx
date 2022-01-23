@@ -1,4 +1,5 @@
 import { Fragment, useState } from 'react'
+import { UserTabs } from '../Tabs'
 import _ from 'lodash-es'
 import { Dialog, Transition } from '@headlessui/react'
 import { XCircleIcon } from '@heroicons/react/outline'
@@ -47,7 +48,7 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
         className="fixed z-10 inset-0 overflow-y-auto"
         onClose={handleClose}
       >
-        <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -79,7 +80,7 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
             <div
               className="inline-block align-bottom bg-white rounded-lg px-4 
                             pt-5 pb-4 text-left overflow-hidden shadow-xl transform 
-                            transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6"
+                            transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full sm:p-6"
             >
               <div className="absolute right-4 top-4">
                 <XCircleIcon
@@ -103,10 +104,12 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                       </h4>
                       <Histogram gameStats={gameStats} />
                       <p className="text-lg text-gray-600 my-2">Today's game</p>
-                      <MiniGrid
-                        showLetters={canSpoil}
-                        guesses={currentGame.guesses}
-                      />
+                      <div className="sm:h-64">
+                        <MiniGrid
+                          showLetters={canSpoil}
+                          guesses={currentGame.guesses}
+                        />
+                      </div>
                     </>
                   ) : (
                     <div className="text-center">
@@ -115,21 +118,12 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                       </p>
                     </div>
                   )}
-                  {allUsers && (
-                    <div className="relative z-0 inline-flex justify-center rounded-md w-full overflow-x-auto">
-                      {allUsers.map((currentUser) => (
-                        <button
-                          key={currentUser}
-                          className={classNames(
-                            user === currentUser ? 'bg-gray-200' : 'bg-white',
-                            'rounded-none first:ml-0 first:rounded-l-md last:rounded-r-md last:mr-0 -mx-px relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500'
-                          )}
-                          onClick={() => setUser(currentUser)}
-                        >
-                          {currentUser}
-                        </button>
-                      ))}
-                    </div>
+                  {allUsers.length > 1 && (
+                    <UserTabs
+                      usernames={allUsers}
+                      currentUser={user}
+                      setUser={setUser}
+                    />
                   )}
                 </div>
               </div>

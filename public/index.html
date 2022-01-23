@@ -82,7 +82,7 @@
             document.querySelector('form').onsubmit = function (e) {
               e.preventDefault()
               const username = document.querySelector('#username').value
-              localStorage['username'] = username
+              localStorage['username'] = username.toLowerCase().trim()
               window.location.reload()
             }
           </script>

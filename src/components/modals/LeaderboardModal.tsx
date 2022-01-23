@@ -2,10 +2,7 @@ import { Fragment, useMemo } from 'react'
 import Table from '../Table'
 import { Dialog, Transition } from '@headlessui/react'
 import { XCircleIcon } from '@heroicons/react/outline'
-import { StatBar } from '../stats/StatBar'
-import { Histogram } from '../stats/Histogram'
-import { GameStats } from '../../lib/localStorage'
-import { useAllGamesQuery, useAllStatsQuery } from '../../generated/graphql'
+import { useAllStatsQuery } from '../../generated/graphql'
 import { notEmpty } from '../../helpers'
 
 type Props = {
@@ -60,7 +57,7 @@ export const LeaderboardModal = ({ isOpen, handleClose }: Props) => {
         className="fixed z-10 inset-0 overflow-y-auto"
         onClose={handleClose}
       >
-        <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
