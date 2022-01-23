@@ -1,13 +1,25 @@
 import { Fragment } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XCircleIcon } from '@heroicons/react/outline'
+import { StatBar } from '../stats/StatBar'
+import { Histogram } from '../stats/Histogram'
+import { GameStats } from '../../lib/localStorage'
+import { useAllGamesQuery } from '../../generated/graphql'
+import { notEmpty } from '../../helpers'
 
 type Props = {
   isOpen: boolean
   handleClose: () => void
 }
 
-export const AboutModal = ({ isOpen, handleClose }: Props) => {
+export const LeaderboardModal = ({ isOpen, handleClose }: Props) => {
+  const { data } = useAllGamesQuery()
+  const gameStats =
+    data?.allGames
+      ?.map((game) => {
+        return game?.stats
+      })
+      .filter(notEmpty) || []
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog
@@ -44,11 +56,15 @@ export const AboutModal = ({ isOpen, handleClose }: Props) => {
             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
-            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
+            <div
+              className="inline-block align-bottom bg-white rounded-lg px-4 
+                            pt-5 pb-4 text-left overflow-hidden shadow-xl transform 
+                            transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6"
+            >
               <div className="absolute right-4 top-4">
                 <XCircleIcon
                   className="h-6 w-6 cursor-pointer"
-                  onClick={() => handleClose()}
+                  onClick={handleClose}
                 />
               </div>
               <div>
@@ -57,34 +73,8 @@ export const AboutModal = ({ isOpen, handleClose }: Props) => {
                     as="h3"
                     className="text-lg leading-6 font-medium text-gray-900"
                   >
-                    About
+                    Statistics
                   </Dialog.Title>
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500">
-                      This is a ripoff of the game "Wordle" with backend
-                      features built with{' '}
-                      <a
-                        href="https://github.com/juxt/site"
-                        className="underline font-bold"
-                      >
-                        Site.
-                      </a>{' '}
-                      Feel free to{' '}
-                      <a
-                        href="https://github.com/armincerf/site-wordle"
-                        className="underline font-bold"
-                      >
-                        check out the code here
-                      </a>{' '}
-                      and{' '}
-                      <a
-                        href="https://www.powerlanguage.co.uk/wordle/"
-                        className="underline font-bold"
-                      >
-                        play the original here
-                      </a>
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>

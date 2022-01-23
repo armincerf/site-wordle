@@ -1,0 +1,77 @@
+schema @site(type: "wordle/prod3") {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  allGames: [GameState]
+  gameForId(id: ID!): GameState
+  gameHistoryForId(id: ID!): [GameState] @site(history: "desc")
+  todaysGames(date: String!): [GameState]
+    @site(
+      q: {
+        edn: """
+        {:find [e]
+         :where [[e {{type}} "GameState"]
+                 [e :date "{{args.date}}"]]}
+        """
+      }
+    )
+  playersGames(username: String!): [GameState]
+    @site(
+      q: {
+        edn: """
+        {:find [e]
+         :where [[e {{type}} "GameState"]
+                 [e :username "{{args.username}}"]]}
+        """
+      }
+    )
+}
+
+type Mutation {
+  saveGame(id: ID!, game: GameInput!): GameState @site(mutation: "update")
+  saveStats(id: ID!, stats: StatsInput!): Stats @site(mutation: "update")
+}
+
+input StatsInput {
+  winDistribution: [Int!]!
+  gamesFailed: Int!
+  currentStreak: Int!
+  bestStreak: Int!
+  totalGames: Int!
+  successRate: Float!
+  username: String!
+}
+
+input GameInput {
+  username: String!
+  guesses: [String!]!
+  finished: Boolean!
+  date: String!
+  solution: String!
+  statsId: ID!
+}
+
+type Stats {
+  id: ID!
+  username: String!
+  winDistribution: [Int!]!
+  gamesFailed: Int!
+  currentStreak: Int!
+  bestStreak: Int!
+  totalGames: Int!
+  successRate: Float!
+}
+
+type GameState {
+  id: ID!
+  _siteQuery: String!
+  _siteValidTime: String!
+  date: String!
+  finished: Boolean!
+  username: String!
+  guesses: [String!]
+  solution: String!
+  stats: Stats @site(ref: "statsId")
+}

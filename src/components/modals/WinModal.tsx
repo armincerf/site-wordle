@@ -1,15 +1,18 @@
 import { Fragment } from 'react'
+import { joinList, notEmpty } from '../../helpers'
 import { Dialog, Transition } from '@headlessui/react'
 import { CheckIcon } from '@heroicons/react/outline'
 import { MiniGrid } from '../mini-grid/MiniGrid'
 import { shareStatus } from '../../lib/share'
 import { XCircleIcon } from '@heroicons/react/outline'
+import { useAllGamesQuery } from '../../generated/graphql'
 
 type Props = {
   isOpen: boolean
   handleClose: () => void
   guesses: string[]
   handleShare: () => void
+  handleStats: () => void
 }
 
 export const WinModal = ({
@@ -17,7 +20,17 @@ export const WinModal = ({
   handleClose,
   guesses,
   handleShare,
+  handleStats,
 }: Props) => {
+  const me = window.localStorage.getItem('username')
+  const { data } = useAllGamesQuery()
+  const othersGames =
+    data?.allGames
+      ?.filter((game) => game?.finished)
+      ?.map((game) => game?.username)
+      .filter((username) => username !== me)
+      .filter(notEmpty) || []
+
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog
@@ -37,7 +50,7 @@ export const WinModal = ({
           >
             <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
-          
+
           {/* This element is to trick the browser into centering the modal contents. */}
           <span
             className="hidden sm:inline-block sm:align-middle sm:h-screen"
@@ -78,19 +91,36 @@ export const WinModal = ({
                   <div className="mt-2">
                     <MiniGrid guesses={guesses} />
                     <p className="text-sm text-gray-500">Great job.</p>
+                    {othersGames.length > 0 && (
+                      <p>
+                        {`${joinList(othersGames)} ${
+                          othersGames.length === 1 ? 'has ' : 'have '
+                        } also finished today's game, see how they did!`}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
               <div className="mt-5 sm:mt-6">
                 <button
                   type="button"
-                  className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+                  className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-400 text-base font-medium text-white hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-300 sm:text-sm"
+                  onClick={() => {
+                    handleStats()
+                  }}
+                >
+                  See stats for today's game
+                </button>
+
+                <button
+                  type="button"
+                  className="mt-2 inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-gray-600 text-base font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 sm:text-sm"
                   onClick={() => {
                     shareStatus(guesses)
                     handleShare()
                   }}
                 >
-                  Share
+                  Copy Board To Share
                 </button>
               </div>
             </div>

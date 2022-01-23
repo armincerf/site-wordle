@@ -7,11 +7,12 @@ import {
 // In stats array elements 0-5 are successes in 1-6 trys
 
 export const addStatsForCompletedGame = (
+  username: string,
   gameStats: GameStats,
   count: number
 ) => {
   // Count is number of incorrect guesses before end.
-  const stats = { ...gameStats }
+  const stats = { ...gameStats, username }
 
   stats.totalGames += 1
 
@@ -35,6 +36,7 @@ export const addStatsForCompletedGame = (
 }
 
 const defaultStats: GameStats = {
+  username: localStorage.getItem('username') || '',
   winDistribution: [0, 0, 0, 0, 0, 0],
   gamesFailed: 0,
   currentStreak: 0,

@@ -1,0 +1,9 @@
+fragment statsFields on Stats {
+  username
+  winDistribution
+  gamesFailed
+  currentStreak
+  bestStreak
+  totalGames
+  successRate
+}

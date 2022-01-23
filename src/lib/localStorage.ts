@@ -1,3 +1,4 @@
+import { StatsFieldsFragment } from '../generated/graphql'
 const gameStateKey = 'gameState'
 
 type StoredGameState = {
@@ -16,14 +17,7 @@ export const loadGameStateFromLocalStorage = () => {
 
 const gameStatKey = 'gameStats'
 
-export type GameStats = {
-  winDistribution: number[]
-  gamesFailed: number
-  currentStreak: number
-  bestStreak: number
-  totalGames: number
-  successRate: number
-}
+export type GameStats = StatsFieldsFragment
 
 export const saveStatsToLocalStorage = (gameStats: GameStats) => {
   localStorage.setItem(gameStatKey, JSON.stringify(gameStats))

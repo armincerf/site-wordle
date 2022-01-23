@@ -1,0 +1,11 @@
+fragment gameFields on GameState {
+  guesses
+  date
+  id
+  solution
+  finished
+  username
+  stats {
+    ...statsFields
+  }
+}

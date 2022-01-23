@@ -1,5 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { InformationCircleIcon } from '@heroicons/react/outline'
 import { ChartBarIcon } from '@heroicons/react/outline'
+import {
+  useGameForIdQuery,
+  useSaveGameMutation,
+  useUpdateStatsMutation,
+} from './generated/graphql'
 import { useState, useEffect } from 'react'
 import { Alert } from './components/alerts/Alert'
 import { Grid } from './components/grid/Grid'
@@ -14,8 +20,10 @@ import {
   loadGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
 } from './lib/localStorage'
+import { dateStr, genGameId, genStatsId } from './helpers'
+import { useQueryClient } from 'react-query'
 
-function App() {
+function App({ username }: { username: string }) {
   const [currentGuess, setCurrentGuess] = useState('')
   const [isGameWon, setIsGameWon] = useState(false)
   const [isWinModalOpen, setIsWinModalOpen] = useState(false)
@@ -26,6 +34,13 @@ function App() {
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [shareComplete, setShareComplete] = useState(false)
+  const date = dateStr()
+  const id = genGameId(username)
+  const statsId = genStatsId(username)
+
+  const { data, isLoading } = useGameForIdQuery({ id: id })
+  const gameState = data?.gameForId
+
   const [guesses, setGuesses] = useState<string[]>(() => {
     const loaded = loadGameStateFromLocalStorage()
     if (loaded?.solution !== solution) {
@@ -38,10 +53,51 @@ function App() {
   })
 
   const [stats, setStats] = useState(() => loadStats())
+  const queryClient = useQueryClient()
+  const updateMutation = useSaveGameMutation({
+    onSettled: () => {
+      queryClient.refetchQueries(useGameForIdQuery.getKey({ id }))
+    },
+  })
+  const updateStatsMutation = useUpdateStatsMutation({
+    onSettled: () => {
+      queryClient.refetchQueries(useGameForIdQuery.getKey({ id }))
+    },
+  })
 
   useEffect(() => {
-    saveGameStateToLocalStorage({ guesses, solution })
-  }, [guesses])
+    if (!loadGameStateFromLocalStorage()?.guesses?.length && data) {
+      console.log('loading game state from server', data)
+      const guessesFromServer = data.gameForId?.guesses || []
+      saveGameStateToLocalStorage({
+        guesses: guessesFromServer,
+        solution,
+      })
+      setGuesses(guessesFromServer)
+    }
+  }, [data])
+
+  useEffect(() => {
+    if (
+      username &&
+      !isLoading &&
+      guesses.length &&
+      (!gameState || gameState.guesses?.length !== guesses.length)
+    ) {
+      updateMutation.mutate({
+        id,
+        game: {
+          date,
+          username,
+          finished: isGameLost || isGameWon,
+          guesses,
+          solution,
+          statsId,
+        },
+      })
+      saveGameStateToLocalStorage({ guesses, solution })
+    }
+  }, [JSON.stringify(guesses), gameState, solution])
 
   useEffect(() => {
     if (isGameWon) {
@@ -81,12 +137,30 @@ function App() {
       setCurrentGuess('')
 
       if (winningWord) {
-        setStats(addStatsForCompletedGame(stats, guesses.length))
+        const newStats = addStatsForCompletedGame(
+          username,
+          stats,
+          guesses.length
+        )
+        updateStatsMutation.mutate({
+          id: statsId,
+          stats: newStats,
+        })
+        setStats(newStats)
         return setIsGameWon(true)
       }
 
       if (guesses.length === 5) {
-        setStats(addStatsForCompletedGame(stats, guesses.length + 1))
+        const newStats = addStatsForCompletedGame(
+          username,
+          stats,
+          guesses.length + 1
+        )
+        updateStatsMutation.mutate({
+          id: statsId,
+          stats: newStats,
+        })
+        setStats(newStats)
         setIsGameLost(true)
         return setTimeout(() => {
           setIsGameLost(false)
@@ -109,7 +183,7 @@ function App() {
         variant="success"
       />
       <div className="flex w-80 mx-auto items-center mb-8">
-        <h1 className="text-xl grow font-bold">Not Wordle</h1>
+        <h1 className="text-xl grow font-bold">Playing as {username}</h1>
         <InformationCircleIcon
           className="h-6 w-6 cursor-pointer"
           onClick={() => setIsInfoModalOpen(true)}
@@ -130,6 +204,10 @@ function App() {
         isOpen={isWinModalOpen}
         handleClose={() => setIsWinModalOpen(false)}
         guesses={guesses}
+        handleStats={() => {
+          setIsWinModalOpen(false)
+          setIsStatsModalOpen(true)
+        }}
         handleShare={() => {
           setIsWinModalOpen(false)
           setShareComplete(true)
@@ -145,7 +223,7 @@ function App() {
       <StatsModal
         isOpen={isStatsModalOpen}
         handleClose={() => setIsStatsModalOpen(false)}
-        gameStats={stats}
+        username={username}
       />
       <AboutModal
         isOpen={isAboutModalOpen}
