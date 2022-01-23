@@ -4,6 +4,8 @@ fragment gameFields on GameState {
   id
   solution
   finished
+  _siteValidTime
+  timeTakenMillis
   username
   stats {
     ...statsFields

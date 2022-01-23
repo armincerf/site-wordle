@@ -1,4 +1,4 @@
-schema @site(type: "wordle/prod3") {
+schema @site(type: "wordle/test5") {
   query: Query
   mutation: Mutation
 }
@@ -7,7 +7,7 @@ type Query {
   allGames: [GameState]
   allStats: [Stats]
   gameForId(id: ID!): GameState
-  gameHistoryForId(id: ID!): [GameState] @site(history: "desc")
+  gameHistoryForId(id: ID!): [GameState] @site(history: "asc")
   todaysGames(date: String!): [GameState]
     @site(
       q: {
@@ -49,6 +49,7 @@ input GameInput {
   username: String!
   guesses: [String!]!
   finished: Boolean!
+  timeTakenMillis: Int
   date: String!
   solution: String!
   statsId: ID!
@@ -84,5 +85,6 @@ type GameState {
   username: String!
   guesses: [String!]
   solution: String!
+  timeTakenMillis: Int
   stats: Stats @site(ref: "statsId")
 }

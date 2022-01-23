@@ -3,6 +3,7 @@ import { InformationCircleIcon, UserGroupIcon } from '@heroicons/react/outline'
 import { ChartBarIcon } from '@heroicons/react/outline'
 import {
   useGameForIdQuery,
+  useGameHistoryQuery,
   useSaveGameMutation,
   useUpdateStatsMutation,
 } from './generated/graphql'
@@ -21,7 +22,7 @@ import {
   loadGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
 } from './lib/localStorage'
-import { dateStr, genGameId, genStatsId } from './helpers'
+import { dateStr, genGameId, genStatsId, notEmpty } from './helpers'
 import { useQueryClient } from 'react-query'
 
 function App({ username }: { username: string }) {
@@ -36,12 +37,17 @@ function App({ username }: { username: string }) {
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [shareComplete, setShareComplete] = useState(false)
+  const [timeTaken, setTimeTaken] = useState(0)
   const date = dateStr()
   const id = genGameId(username)
   const statsId = genStatsId(username)
 
-  const { data, isLoading } = useGameForIdQuery({ id: id })
+  const { data, isLoading } = useGameForIdQuery({ id })
   const gameState = data?.gameForId
+
+  const historyQuery = useGameHistoryQuery({ id })
+  const startedAt =
+    historyQuery.data?.gameHistoryForId?.filter(notEmpty)?.[0]?._siteValidTime
 
   const [guesses, setGuesses] = useState<string[]>(() => {
     const loaded = loadGameStateFromLocalStorage()
@@ -58,17 +64,21 @@ function App({ username }: { username: string }) {
   const queryClient = useQueryClient()
   const updateMutation = useSaveGameMutation({
     onSettled: () => {
+      console.log('saved game')
+      queryClient.refetchQueries(useGameHistoryQuery.getKey({ id }))
       queryClient.refetchQueries(useGameForIdQuery.getKey({ id }))
     },
   })
   const updateStatsMutation = useUpdateStatsMutation({
     onSettled: () => {
+      console.log('saved stats')
+
       queryClient.refetchQueries(useGameForIdQuery.getKey({ id }))
     },
   })
 
   useEffect(() => {
-    if (!loadGameStateFromLocalStorage()?.guesses?.length && data) {
+    if (!loadGameStateFromLocalStorage()?.guesses?.length && data?.gameForId) {
       console.log('loading game state from server', data)
       const guessesFromServer = data.gameForId?.guesses || []
       saveGameStateToLocalStorage({
@@ -92,6 +102,7 @@ function App({ username }: { username: string }) {
           date,
           username,
           finished: isGameLost || isGameWon,
+          timeTakenMillis: timeTaken,
           guesses,
           solution,
           statsId,
@@ -133,10 +144,15 @@ function App({ username }: { username: string }) {
     }
 
     const winningWord = isWinningWord(currentGuess)
-
     if (currentGuess.length === 5 && guesses.length < 6 && !isGameWon) {
       setGuesses([...guesses, currentGuess])
       setCurrentGuess('')
+
+      if (startedAt && !gameState?.timeTakenMillis) {
+        const now = new Date().getTime()
+        const millis = now - new Date(startedAt).getTime()
+        setTimeTaken(millis)
+      }
 
       if (winningWord) {
         const newStats = addStatsForCompletedGame(

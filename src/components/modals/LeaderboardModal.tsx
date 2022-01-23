@@ -11,7 +11,7 @@ type Props = {
 }
 
 export const LeaderboardModal = ({ isOpen, handleClose }: Props) => {
-  const statsQuery = useAllStatsQuery()
+  const statsQuery = useAllStatsQuery(undefined, { enabled: isOpen })
   const data = useMemo(() => {
     return statsQuery.data?.allStats
       ?.filter((stat) => stat?.game?.date)
@@ -105,7 +105,7 @@ export const LeaderboardModal = ({ isOpen, handleClose }: Props) => {
                   >
                     Statistics
                   </Dialog.Title>
-                  <Table columns={cols} data={data} />
+                  {data && <Table columns={cols} data={data} />}
                 </div>
               </div>
             </div>

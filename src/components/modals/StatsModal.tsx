@@ -82,12 +82,12 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                             pt-5 pb-4 text-left overflow-hidden shadow-xl transform 
                             transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full sm:p-6"
             >
-              <div className="absolute right-4 top-4">
+              <button className="absolute right-4 top-4">
                 <XCircleIcon
                   className="h-6 w-6 cursor-pointer"
                   onClick={handleClose}
                 />
-              </div>
+              </button>
               <div>
                 <div className="text-center">
                   <Dialog.Title
@@ -109,6 +109,12 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                           showLetters={canSpoil}
                           guesses={currentGame.guesses}
                         />
+                        {currentGame?.timeTakenMillis && (
+                          <p className="text-sm text-gray-600">
+                            Time Taken: {currentGame.timeTakenMillis / 1000}{' '}
+                            seconds
+                          </p>
+                        )}
                       </div>
                     </>
                   ) : (

@@ -7,7 +7,7 @@ export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Mayb
 
 function fetcher<TData, TVariables>(query: string, variables?: TVariables) {
   return async (): Promise<TData> => {
-    const res = await fetch("https://alexd.uk/site/wordle/graphql", {
+    const res = await fetch("http://localhost:5509/wordle/graphql", {
     method: "POST",
     ...({"headers":{"Content-Type":"application/json","Accept":"application/json"},"credentials":"include"}),
       body: JSON.stringify({ query, variables }),
@@ -39,6 +39,7 @@ export type GameInput = {
   guesses: Array<Scalars['String']>;
   solution: Scalars['String'];
   statsId: Scalars['ID'];
+  timeTakenMillis?: InputMaybe<Scalars['Int']>;
   username: Scalars['String'];
 };
 
@@ -52,6 +53,7 @@ export type GameState = {
   id: Scalars['ID'];
   solution: Scalars['String'];
   stats?: Maybe<Stats>;
+  timeTakenMillis?: Maybe<Scalars['Int']>;
   username: Scalars['String'];
 };
 
@@ -129,7 +131,7 @@ export type StatsInput = {
 export type AllGamesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllGamesQuery = { __typename?: 'Query', allGames?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, username: string, stats?: { __typename?: 'Stats', username: string, winDistribution: Array<number>, gamesFailed: number, currentStreak: number, bestStreak: number, totalGames: number, successRate: number } | null | undefined } | null | undefined> | null | undefined };
+export type AllGamesQuery = { __typename?: 'Query', allGames?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string, stats?: { __typename?: 'Stats', username: string, winDistribution: Array<number>, gamesFailed: number, currentStreak: number, bestStreak: number, totalGames: number, successRate: number } | null | undefined } | null | undefined> | null | undefined };
 
 export type AllStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -144,28 +146,28 @@ export type SaveGameMutationVariables = Exact<{
 
 export type SaveGameMutation = { __typename?: 'Mutation', saveGame?: { __typename?: 'GameState', id: string } | null | undefined };
 
-export type GameFieldsFragment = { __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, username: string, stats?: { __typename?: 'Stats', username: string, winDistribution: Array<number>, gamesFailed: number, currentStreak: number, bestStreak: number, totalGames: number, successRate: number } | null | undefined };
+export type GameFieldsFragment = { __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string, stats?: { __typename?: 'Stats', username: string, winDistribution: Array<number>, gamesFailed: number, currentStreak: number, bestStreak: number, totalGames: number, successRate: number } | null | undefined };
 
 export type GameForIdQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GameForIdQuery = { __typename?: 'Query', gameForId?: { __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, username: string, stats?: { __typename?: 'Stats', username: string, winDistribution: Array<number>, gamesFailed: number, currentStreak: number, bestStreak: number, totalGames: number, successRate: number } | null | undefined } | null | undefined };
+export type GameForIdQuery = { __typename?: 'Query', gameForId?: { __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string, stats?: { __typename?: 'Stats', username: string, winDistribution: Array<number>, gamesFailed: number, currentStreak: number, bestStreak: number, totalGames: number, successRate: number } | null | undefined } | null | undefined };
 
 export type GameHistoryQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GameHistoryQuery = { __typename?: 'Query', gameHistoryForId?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, username: string, stats?: { __typename?: 'Stats', username: string, winDistribution: Array<number>, gamesFailed: number, currentStreak: number, bestStreak: number, totalGames: number, successRate: number } | null | undefined } | null | undefined> | null | undefined };
+export type GameHistoryQuery = { __typename?: 'Query', gameHistoryForId?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string, stats?: { __typename?: 'Stats', username: string, winDistribution: Array<number>, gamesFailed: number, currentStreak: number, bestStreak: number, totalGames: number, successRate: number } | null | undefined } | null | undefined> | null | undefined };
 
 export type PlayersGamesQueryVariables = Exact<{
   username: Scalars['String'];
 }>;
 
 
-export type PlayersGamesQuery = { __typename?: 'Query', playersGames?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, username: string, stats?: { __typename?: 'Stats', username: string, winDistribution: Array<number>, gamesFailed: number, currentStreak: number, bestStreak: number, totalGames: number, successRate: number } | null | undefined } | null | undefined> | null | undefined };
+export type PlayersGamesQuery = { __typename?: 'Query', playersGames?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string, stats?: { __typename?: 'Stats', username: string, winDistribution: Array<number>, gamesFailed: number, currentStreak: number, bestStreak: number, totalGames: number, successRate: number } | null | undefined } | null | undefined> | null | undefined };
 
 export type UpdateStatsMutationVariables = Exact<{
   stats: StatsInput;
@@ -182,7 +184,7 @@ export type TodaysGamesQueryVariables = Exact<{
 }>;
 
 
-export type TodaysGamesQuery = { __typename?: 'Query', todaysGames?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, username: string, stats?: { __typename?: 'Stats', username: string, winDistribution: Array<number>, gamesFailed: number, currentStreak: number, bestStreak: number, totalGames: number, successRate: number } | null | undefined } | null | undefined> | null | undefined };
+export type TodaysGamesQuery = { __typename?: 'Query', todaysGames?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string, stats?: { __typename?: 'Stats', username: string, winDistribution: Array<number>, gamesFailed: number, currentStreak: number, bestStreak: number, totalGames: number, successRate: number } | null | undefined } | null | undefined> | null | undefined };
 
 export const StatsFieldsFragmentDoc = `
     fragment statsFields on Stats {
@@ -202,6 +204,8 @@ export const GameFieldsFragmentDoc = `
   id
   solution
   finished
+  _siteValidTime
+  timeTakenMillis
   username
   stats {
     ...statsFields
