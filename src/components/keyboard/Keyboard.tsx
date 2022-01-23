@@ -8,31 +8,42 @@ type Props = {
   onDelete: () => void
   onEnter: () => void
   guesses: string[]
+  disabled: boolean
 }
 
-export const Keyboard = ({ onChar, onDelete, onEnter, guesses }: Props) => {
+export const Keyboard = ({
+  onChar,
+  onDelete,
+  onEnter,
+  guesses,
+  disabled,
+}: Props) => {
   const charStatuses = getStatuses(guesses)
 
   const onClick = (value: KeyValue) => {
-    if (value === 'ENTER') {
-      onEnter()
-    } else if (value === 'DELETE') {
-      onDelete()
-    } else {
-      onChar(value)
+    if (!disabled) {
+      if (value === 'ENTER') {
+        onEnter()
+      } else if (value === 'DELETE') {
+        onDelete()
+      } else {
+        onChar(value)
+      }
     }
   }
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
-      if (e.code === 'Enter') {
-        onEnter()
-      } else if (e.code === 'Backspace') {
-        onDelete()
-      } else {
-        const key = e.key.toUpperCase()
-        if (key.length === 1 && key >= 'A' && key <= 'Z') {
-          onChar(key)
+      if (!disabled) {
+        if (e.code === 'Enter') {
+          onEnter()
+        } else if (e.code === 'Backspace') {
+          onDelete()
+        } else {
+          const key = e.key.toUpperCase()
+          if (key.length === 1 && key >= 'A' && key <= 'Z') {
+            onChar(key)
+          }
         }
       }
     }
@@ -40,7 +51,7 @@ export const Keyboard = ({ onChar, onDelete, onEnter, guesses }: Props) => {
     return () => {
       window.removeEventListener('keyup', listener)
     }
-  }, [onEnter, onDelete, onChar])
+  }, [onEnter, onDelete, onChar, disabled])
 
   return (
     <div>

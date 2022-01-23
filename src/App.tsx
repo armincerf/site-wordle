@@ -219,6 +219,7 @@ function App({ username }: { username: string }) {
       </div>
       <Grid guesses={guesses} currentGuess={currentGuess} />
       <Keyboard
+        disabled={isGameWon || isGameLost}
         onChar={onChar}
         onDelete={onDelete}
         onEnter={onEnter}
