@@ -17,7 +17,10 @@ type Props = {
 
 export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
   const date = dateStr()
-  const { data } = useTodaysGamesQuery({ date }, { refetchInterval: 5000 })
+  const { data } = useTodaysGamesQuery(
+    { date },
+    { enabled: isOpen, refetchInterval: 5000 }
+  )
   const [user, setUser] = useState(username)
   const allUsers =
     _.uniq(

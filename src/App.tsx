@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { InformationCircleIcon } from '@heroicons/react/outline'
+import { InformationCircleIcon, UserGroupIcon } from '@heroicons/react/outline'
 import { ChartBarIcon } from '@heroicons/react/outline'
 import {
   useGameForIdQuery,
@@ -12,6 +12,7 @@ import { Grid } from './components/grid/Grid'
 import { Keyboard } from './components/keyboard/Keyboard'
 import { AboutModal } from './components/modals/AboutModal'
 import { InfoModal } from './components/modals/InfoModal'
+import { LeaderboardModal } from './components/modals/LeaderboardModal'
 import { WinModal } from './components/modals/WinModal'
 import { StatsModal } from './components/modals/StatsModal'
 import { isWordInWordList, isWinningWord, solution } from './lib/words'
@@ -27,6 +28,7 @@ function App({ username }: { username: string }) {
   const [currentGuess, setCurrentGuess] = useState('')
   const [isGameWon, setIsGameWon] = useState(false)
   const [isWinModalOpen, setIsWinModalOpen] = useState(false)
+  const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false)
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false)
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
@@ -192,6 +194,10 @@ function App({ username }: { username: string }) {
           className="h-6 w-6 cursor-pointer"
           onClick={() => setIsStatsModalOpen(true)}
         />
+        <UserGroupIcon
+          className="h-6 w-6 cursor-pointer"
+          onClick={() => setIsLeaderboardModalOpen(true)}
+        />
       </div>
       <Grid guesses={guesses} currentGuess={currentGuess} />
       <Keyboard
@@ -219,6 +225,10 @@ function App({ username }: { username: string }) {
       <InfoModal
         isOpen={isInfoModalOpen}
         handleClose={() => setIsInfoModalOpen(false)}
+      />
+      <LeaderboardModal
+        isOpen={isLeaderboardModalOpen}
+        handleClose={() => setIsLeaderboardModalOpen(false)}
       />
       <StatsModal
         isOpen={isStatsModalOpen}

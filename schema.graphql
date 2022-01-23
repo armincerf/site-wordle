@@ -5,6 +5,7 @@ schema @site(type: "wordle/prod3") {
 
 type Query {
   allGames: [GameState]
+  allStats: [Stats]
   gameForId(id: ID!): GameState
   gameHistoryForId(id: ID!): [GameState] @site(history: "desc")
   todaysGames(date: String!): [GameState]
@@ -62,6 +63,16 @@ type Stats {
   bestStreak: Int!
   totalGames: Int!
   successRate: Float!
+  game: GameState
+    @site(
+      q: {
+        edn: """
+        {:find [e]
+         :where [[e {{type}} "GameState"]
+                 [e :statsId "{{object-id}}"]]}
+        """
+      }
+    )
 }
 
 type GameState {

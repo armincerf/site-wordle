@@ -7,7 +7,7 @@ export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Mayb
 
 function fetcher<TData, TVariables>(query: string, variables?: TVariables) {
   return async (): Promise<TData> => {
-    const res = await fetch("https://alexd.uk/site/wordle/graphql", {
+    const res = await fetch("http://localhost:5509/wordle/graphql", {
     method: "POST",
     ...({"headers":{"Content-Type":"application/json","Accept":"application/json"},"credentials":"include"}),
       body: JSON.stringify({ query, variables }),
@@ -76,6 +76,7 @@ export type MutationSaveStatsArgs = {
 export type Query = {
   __typename?: 'Query';
   allGames?: Maybe<Array<Maybe<GameState>>>;
+  allStats?: Maybe<Array<Maybe<Stats>>>;
   gameForId?: Maybe<GameState>;
   gameHistoryForId?: Maybe<Array<Maybe<GameState>>>;
   playersGames?: Maybe<Array<Maybe<GameState>>>;
@@ -106,6 +107,7 @@ export type Stats = {
   __typename?: 'Stats';
   bestStreak: Scalars['Int'];
   currentStreak: Scalars['Int'];
+  game?: Maybe<GameState>;
   gamesFailed: Scalars['Int'];
   id: Scalars['ID'];
   successRate: Scalars['Float'];
@@ -128,6 +130,11 @@ export type AllGamesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AllGamesQuery = { __typename?: 'Query', allGames?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, username: string, stats?: { __typename?: 'Stats', username: string, winDistribution: Array<number>, gamesFailed: number, currentStreak: number, bestStreak: number, totalGames: number, successRate: number } | null | undefined } | null | undefined> | null | undefined };
+
+export type AllStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AllStatsQuery = { __typename?: 'Query', allStats?: Array<{ __typename?: 'Stats', currentStreak: number, bestStreak: number, gamesFailed: number, successRate: number, totalGames: number, username: string, winDistribution: Array<number>, game?: { __typename?: 'GameState', date: string, finished: boolean } | null | undefined } | null | undefined> | null | undefined };
 
 export type SaveGameMutationVariables = Exact<{
   id: Scalars['ID'];
@@ -227,6 +234,42 @@ useAllGamesQuery.getKey = (variables?: AllGamesQueryVariables) => variables === 
 ;
 
 useAllGamesQuery.fetcher = (variables?: AllGamesQueryVariables) => fetcher<AllGamesQuery, AllGamesQueryVariables>(AllGamesDocument, variables);
+export const AllStatsDocument = `
+    query allStats {
+  allStats {
+    currentStreak
+    bestStreak
+    game {
+      date
+      finished
+    }
+    gamesFailed
+    successRate
+    totalGames
+    username
+    winDistribution
+  }
+}
+    `;
+export const useAllStatsQuery = <
+      TData = AllStatsQuery,
+      TError = Error
+    >(
+      variables?: AllStatsQueryVariables,
+      options?: UseQueryOptions<AllStatsQuery, TError, TData>
+    ) =>
+    useQuery<AllStatsQuery, TError, TData>(
+      variables === undefined ? ['allStats'] : ['allStats', variables],
+      fetcher<AllStatsQuery, AllStatsQueryVariables>(AllStatsDocument, variables),
+      options
+    );
+useAllStatsQuery.document = AllStatsDocument;
+
+
+useAllStatsQuery.getKey = (variables?: AllStatsQueryVariables) => variables === undefined ? ['allStats'] : ['allStats', variables];
+;
+
+useAllStatsQuery.fetcher = (variables?: AllStatsQueryVariables) => fetcher<AllStatsQuery, AllStatsQueryVariables>(AllStatsDocument, variables);
 export const SaveGameDocument = `
     mutation saveGame($id: ID!, $game: GameInput!) {
   saveGame(id: $id, game: $game) {

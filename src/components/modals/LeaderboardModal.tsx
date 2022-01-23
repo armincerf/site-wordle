@@ -1,10 +1,11 @@
-import { Fragment } from 'react'
+import { Fragment, useMemo } from 'react'
+import Table from '../Table'
 import { Dialog, Transition } from '@headlessui/react'
 import { XCircleIcon } from '@heroicons/react/outline'
 import { StatBar } from '../stats/StatBar'
 import { Histogram } from '../stats/Histogram'
 import { GameStats } from '../../lib/localStorage'
-import { useAllGamesQuery } from '../../generated/graphql'
+import { useAllGamesQuery, useAllStatsQuery } from '../../generated/graphql'
 import { notEmpty } from '../../helpers'
 
 type Props = {
@@ -13,13 +14,45 @@ type Props = {
 }
 
 export const LeaderboardModal = ({ isOpen, handleClose }: Props) => {
-  const { data } = useAllGamesQuery()
-  const gameStats =
-    data?.allGames
-      ?.map((game) => {
-        return game?.stats
-      })
-      .filter(notEmpty) || []
+  const statsQuery = useAllStatsQuery()
+  const data = useMemo(() => {
+    return statsQuery.data?.allStats
+      ?.filter((stat) => stat?.game?.date)
+      .filter(notEmpty)
+  }, [statsQuery.data])
+
+  const cols = useMemo(() => {
+    return [
+      {
+        Header: 'User',
+        accessor: 'username',
+      },
+      {
+        Header: 'Current Streak',
+        accessor: 'currentStreak',
+      },
+      {
+        Header: 'Best Streak',
+        accessor: 'bestStreak',
+      },
+      {
+        Header: 'Total Games',
+        accessor: 'totalGames',
+      },
+      {
+        Header: 'Success Rate',
+        accessor: 'successRate',
+      },
+      {
+        Header: 'Games Failed',
+        accessor: 'gamesFailed',
+      },
+      {
+        Header: 'Last Played',
+        accessor: 'game.date',
+      },
+    ]
+  }, [])
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog
@@ -59,7 +92,7 @@ export const LeaderboardModal = ({ isOpen, handleClose }: Props) => {
             <div
               className="inline-block align-bottom bg-white rounded-lg px-4 
                             pt-5 pb-4 text-left overflow-hidden shadow-xl transform 
-                            transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6"
+                            transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full sm:p-6"
             >
               <div className="absolute right-4 top-4">
                 <XCircleIcon
@@ -75,6 +108,7 @@ export const LeaderboardModal = ({ isOpen, handleClose }: Props) => {
                   >
                     Statistics
                   </Dialog.Title>
+                  <Table columns={cols} data={data} />
                 </div>
               </div>
             </div>

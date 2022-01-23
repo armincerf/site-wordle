@@ -1,0 +1,15 @@
+query allStats {
+  allStats {
+    currentStreak
+    bestStreak
+    game {
+      date
+      finished
+    }
+    gamesFailed
+    successRate
+    totalGames
+    username
+    winDistribution
+  }
+}

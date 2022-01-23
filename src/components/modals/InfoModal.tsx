@@ -62,7 +62,7 @@ export const InfoModal = ({ isOpen, handleClose }: Props) => {
                   </Dialog.Title>
                   <div className="mt-2">
                     <p className="text-sm text-gray-500">
-                      Guess the WORDLE in 6 tries. After each guess, the color
+                      Guess the JUXTLE in 6 tries. After each guess, the color
                       of the tiles will change to show how close your guess was
                       to the word.
                     </p>
