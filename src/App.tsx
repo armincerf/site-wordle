@@ -150,7 +150,7 @@ function App({ username }: { username: string }) {
 
       if (startedAt && !gameState?.timeTakenMillis) {
         const now = new Date().getTime()
-        const millis = now - new Date(startedAt).getTime()
+        let millis = now - new Date(startedAt).getTime()
         setTimeTaken(millis)
       }
 
@@ -158,7 +158,8 @@ function App({ username }: { username: string }) {
         const newStats = addStatsForCompletedGame(
           username,
           stats,
-          guesses.length
+          guesses.length,
+          timeTaken
         )
         updateStatsMutation.mutate({
           id: statsId,
@@ -172,7 +173,8 @@ function App({ username }: { username: string }) {
         const newStats = addStatsForCompletedGame(
           username,
           stats,
-          guesses.length + 1
+          guesses.length + 1,
+          timeTaken
         )
         updateStatsMutation.mutate({
           id: statsId,

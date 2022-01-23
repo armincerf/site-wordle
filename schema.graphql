@@ -1,4 +1,4 @@
-schema @site(type: "wordle/test5") {
+schema @site(type: "wordle/prod3") {
   query: Query
   mutation: Mutation
 }
@@ -63,6 +63,8 @@ type Stats {
   currentStreak: Int!
   bestStreak: Int!
   totalGames: Int!
+  averageTimeTakenMillis: Int!
+  totalTimeTakenMillis: Int!
   successRate: Float!
   game: GameState
     @site(

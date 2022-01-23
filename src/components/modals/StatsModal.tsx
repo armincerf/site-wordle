@@ -109,7 +109,7 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                           showLetters={canSpoil}
                           guesses={currentGame.guesses}
                         />
-                        {currentGame?.timeTakenMillis && (
+                        {!!currentGame?.timeTakenMillis && (
                           <p className="text-sm text-gray-600">
                             Time Taken: {currentGame.timeTakenMillis / 1000}{' '}
                             seconds

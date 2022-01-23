@@ -9,7 +9,8 @@ import {
 export const addStatsForCompletedGame = (
   username: string,
   gameStats: GameStats,
-  count: number
+  count: number,
+  timeTaken: number
 ) => {
   // Count is number of incorrect guesses before end.
   const stats = { ...gameStats, username }
@@ -31,6 +32,12 @@ export const addStatsForCompletedGame = (
 
   stats.successRate = getSuccessRate(stats)
 
+  stats.totalTimeTakenMillis += timeTaken
+
+  stats.averageTimeTakenMillis = Math.round(
+    stats.totalTimeTakenMillis / stats.totalGames
+  )
+
   saveStatsToLocalStorage(stats)
   return stats
 }
@@ -41,6 +48,8 @@ const defaultStats: GameStats = {
   gamesFailed: 0,
   currentStreak: 0,
   bestStreak: 0,
+  averageTimeTakenMillis: 0,
+  totalTimeTakenMillis: 0,
   totalGames: 0,
   successRate: 0,
 }

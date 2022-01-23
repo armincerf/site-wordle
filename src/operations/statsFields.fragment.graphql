@@ -4,6 +4,8 @@ fragment statsFields on Stats {
   gamesFailed
   currentStreak
   bestStreak
+  averageTimeTakenMillis
+  totalTimeTakenMillis
   totalGames
   successRate
 }
