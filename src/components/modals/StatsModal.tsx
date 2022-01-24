@@ -95,12 +95,13 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                         Guess Distribution
                       </h4>
                       <Histogram gameStats={myStats} />
-                      {currentGame && currentGame?.guesses ? (
-                        <>
-                          <p className="text-lg text-gray-600 my-2">
-                            Today's game
-                          </p>
-                          <div className="sm:h-64">
+
+                      <div className="sm:h-80">
+                        {currentGame && currentGame?.guesses ? (
+                          <>
+                            <p className="text-lg text-gray-600 my-2">
+                              Today's game
+                            </p>
                             <MiniGrid
                               showLetters={canSpoil}
                               guesses={currentGame.guesses}
@@ -113,13 +114,13 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                                 )}
                               </p>
                             )}
-                          </div>
-                        </>
-                      ) : (
-                        <p className="text-lg text-gray-600 my-2">
-                          No game today
-                        </p>
-                      )}
+                          </>
+                        ) : (
+                          <p className="text-lg text-gray-600 my-2">
+                            No game today
+                          </p>
+                        )}
+                      </div>
                     </>
                   ) : (
                     <div className="text-center">

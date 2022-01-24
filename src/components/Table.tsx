@@ -231,7 +231,7 @@ function Table({ columns, data }) {
                     prepareRow(row)
                     return (
                       <tr
-                        className="shadow-lg sm:shadow-none mb-6 sm:mb-0 flex flex-row flex-wrap sm:table-row sm:hover:bg-gray-100"
+                        className="shadow-lg ml-2 sm:shadow-none mb-6 sm:mb-0 flex flex-row flex-wrap sm:table-row sm:hover:bg-gray-100"
                         {...row.getRowProps()}
                       >
                         {row.cells.map((cell) => {
