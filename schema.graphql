@@ -5,7 +5,15 @@ schema @site(type: "wordle/prod3") {
 
 type Query {
   allGames: [GameState]
-  allStats: [Stats]
+  allUsers: [String]
+    @site(
+      a: "username"
+      q: {
+        edn: """
+        {:find [e] :where [[e {{type}} "GameState"]]}
+        """
+      }
+    )
   gameForId(id: ID!): GameState
   gameHistoryForId(id: ID!): [GameState] @site(history: "asc")
   todaysGames(date: String!): [GameState]
@@ -32,17 +40,6 @@ type Query {
 
 type Mutation {
   saveGame(id: ID!, game: GameInput!): GameState @site(mutation: "update")
-  saveStats(id: ID!, stats: StatsInput!): Stats @site(mutation: "update")
-}
-
-input StatsInput {
-  winDistribution: [Int!]!
-  gamesFailed: Int!
-  currentStreak: Int!
-  bestStreak: Int!
-  totalGames: Int!
-  successRate: Float!
-  username: String!
 }
 
 input GameInput {
@@ -52,30 +49,6 @@ input GameInput {
   timeTakenMillis: Int
   date: String!
   solution: String!
-  statsId: ID!
-}
-
-type Stats {
-  id: ID!
-  username: String!
-  winDistribution: [Int!]!
-  gamesFailed: Int!
-  currentStreak: Int!
-  bestStreak: Int!
-  totalGames: Int!
-  averageTimeTakenMillis: Int
-  totalTimeTakenMillis: Int
-  successRate: Float!
-  game: GameState
-    @site(
-      q: {
-        edn: """
-        {:find [e]
-         :where [[e {{type}} "GameState"]
-                 [e :statsId "{{object-id}}"]]}
-        """
-      }
-    )
 }
 
 type GameState {
@@ -88,5 +61,4 @@ type GameState {
   guesses: [String!]
   solution: String!
   timeTakenMillis: Int
-  stats: Stats @site(ref: "statsId")
 }

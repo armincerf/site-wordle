@@ -1,4 +1,5 @@
-import { GameStats } from '../../lib/localStorage'
+import prettyMilliseconds from 'pretty-ms'
+import { GameStats } from '../../lib/stats'
 
 type Props = {
   gameStats: GameStats
@@ -25,7 +26,12 @@ export const StatBar = ({ gameStats }: Props) => {
       <StatItem label="Total tries" value={gameStats.totalGames} />
       <StatItem label="Success rate" value={`${gameStats.successRate}%`} />
       <StatItem label="Current streak" value={gameStats.currentStreak} />
-      <StatItem label="Best streak" value={gameStats.bestStreak} />
+      <StatItem
+        label="Average Time Taken"
+        value={prettyMilliseconds(gameStats.averageTimeTakenMillis || 0, {
+          compact: true,
+        })}
+      />
     </div>
   )
 }

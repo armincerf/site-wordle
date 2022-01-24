@@ -38,7 +38,6 @@ export type GameInput = {
   finished: Scalars['Boolean'];
   guesses: Array<Scalars['String']>;
   solution: Scalars['String'];
-  statsId: Scalars['ID'];
   timeTakenMillis?: InputMaybe<Scalars['Int']>;
   username: Scalars['String'];
 };
@@ -52,7 +51,6 @@ export type GameState = {
   guesses?: Maybe<Array<Scalars['String']>>;
   id: Scalars['ID'];
   solution: Scalars['String'];
-  stats?: Maybe<Stats>;
   timeTakenMillis?: Maybe<Scalars['Int']>;
   username: Scalars['String'];
 };
@@ -60,7 +58,6 @@ export type GameState = {
 export type Mutation = {
   __typename?: 'Mutation';
   saveGame?: Maybe<GameState>;
-  saveStats?: Maybe<Stats>;
 };
 
 
@@ -69,16 +66,10 @@ export type MutationSaveGameArgs = {
   id: Scalars['ID'];
 };
 
-
-export type MutationSaveStatsArgs = {
-  id: Scalars['ID'];
-  stats: StatsInput;
-};
-
 export type Query = {
   __typename?: 'Query';
   allGames?: Maybe<Array<Maybe<GameState>>>;
-  allStats?: Maybe<Array<Maybe<Stats>>>;
+  allUsers?: Maybe<Array<Maybe<Scalars['String']>>>;
   gameForId?: Maybe<GameState>;
   gameHistoryForId?: Maybe<Array<Maybe<GameState>>>;
   playersGames?: Maybe<Array<Maybe<GameState>>>;
@@ -105,40 +96,15 @@ export type QueryTodaysGamesArgs = {
   date: Scalars['String'];
 };
 
-export type Stats = {
-  __typename?: 'Stats';
-  averageTimeTakenMillis?: Maybe<Scalars['Int']>;
-  bestStreak: Scalars['Int'];
-  currentStreak: Scalars['Int'];
-  game?: Maybe<GameState>;
-  gamesFailed: Scalars['Int'];
-  id: Scalars['ID'];
-  successRate: Scalars['Float'];
-  totalGames: Scalars['Int'];
-  totalTimeTakenMillis?: Maybe<Scalars['Int']>;
-  username: Scalars['String'];
-  winDistribution: Array<Scalars['Int']>;
-};
-
-export type StatsInput = {
-  bestStreak: Scalars['Int'];
-  currentStreak: Scalars['Int'];
-  gamesFailed: Scalars['Int'];
-  successRate: Scalars['Float'];
-  totalGames: Scalars['Int'];
-  username: Scalars['String'];
-  winDistribution: Array<Scalars['Int']>;
-};
-
 export type AllGamesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllGamesQuery = { __typename?: 'Query', allGames?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string, stats?: { __typename?: 'Stats', currentStreak: number, bestStreak: number, gamesFailed: number, totalTimeTakenMillis?: number | null | undefined, averageTimeTakenMillis?: number | null | undefined, successRate: number, totalGames: number, username: string, winDistribution: Array<number>, game?: { __typename?: 'GameState', date: string, finished: boolean } | null | undefined } | null | undefined } | null | undefined> | null | undefined };
+export type AllGamesQuery = { __typename?: 'Query', allGames?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string } | null | undefined> | null | undefined };
 
-export type AllStatsQueryVariables = Exact<{ [key: string]: never; }>;
+export type AllUsernamesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllStatsQuery = { __typename?: 'Query', allStats?: Array<{ __typename?: 'Stats', currentStreak: number, bestStreak: number, gamesFailed: number, totalTimeTakenMillis?: number | null | undefined, averageTimeTakenMillis?: number | null | undefined, successRate: number, totalGames: number, username: string, winDistribution: Array<number>, game?: { __typename?: 'GameState', date: string, finished: boolean } | null | undefined } | null | undefined> | null | undefined };
+export type AllUsernamesQuery = { __typename?: 'Query', allUsers?: Array<string | null | undefined> | null | undefined };
 
 export type SaveGameMutationVariables = Exact<{
   id: Scalars['ID'];
@@ -148,63 +114,36 @@ export type SaveGameMutationVariables = Exact<{
 
 export type SaveGameMutation = { __typename?: 'Mutation', saveGame?: { __typename?: 'GameState', id: string } | null | undefined };
 
-export type GameFieldsFragment = { __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string, stats?: { __typename?: 'Stats', currentStreak: number, bestStreak: number, gamesFailed: number, totalTimeTakenMillis?: number | null | undefined, averageTimeTakenMillis?: number | null | undefined, successRate: number, totalGames: number, username: string, winDistribution: Array<number>, game?: { __typename?: 'GameState', date: string, finished: boolean } | null | undefined } | null | undefined };
+export type GameFieldsFragment = { __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string };
 
 export type GameForIdQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GameForIdQuery = { __typename?: 'Query', gameForId?: { __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string, stats?: { __typename?: 'Stats', currentStreak: number, bestStreak: number, gamesFailed: number, totalTimeTakenMillis?: number | null | undefined, averageTimeTakenMillis?: number | null | undefined, successRate: number, totalGames: number, username: string, winDistribution: Array<number>, game?: { __typename?: 'GameState', date: string, finished: boolean } | null | undefined } | null | undefined } | null | undefined };
+export type GameForIdQuery = { __typename?: 'Query', gameForId?: { __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string } | null | undefined };
 
 export type GameHistoryQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GameHistoryQuery = { __typename?: 'Query', gameHistoryForId?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string, stats?: { __typename?: 'Stats', currentStreak: number, bestStreak: number, gamesFailed: number, totalTimeTakenMillis?: number | null | undefined, averageTimeTakenMillis?: number | null | undefined, successRate: number, totalGames: number, username: string, winDistribution: Array<number>, game?: { __typename?: 'GameState', date: string, finished: boolean } | null | undefined } | null | undefined } | null | undefined> | null | undefined };
+export type GameHistoryQuery = { __typename?: 'Query', gameHistoryForId?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string } | null | undefined> | null | undefined };
 
 export type PlayersGamesQueryVariables = Exact<{
   username: Scalars['String'];
 }>;
 
 
-export type PlayersGamesQuery = { __typename?: 'Query', playersGames?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string, stats?: { __typename?: 'Stats', currentStreak: number, bestStreak: number, gamesFailed: number, totalTimeTakenMillis?: number | null | undefined, averageTimeTakenMillis?: number | null | undefined, successRate: number, totalGames: number, username: string, winDistribution: Array<number>, game?: { __typename?: 'GameState', date: string, finished: boolean } | null | undefined } | null | undefined } | null | undefined> | null | undefined };
-
-export type UpdateStatsMutationVariables = Exact<{
-  stats: StatsInput;
-  id: Scalars['ID'];
-}>;
-
-
-export type UpdateStatsMutation = { __typename?: 'Mutation', saveStats?: { __typename?: 'Stats', id: string } | null | undefined };
-
-export type StatsFieldsFragment = { __typename?: 'Stats', currentStreak: number, bestStreak: number, gamesFailed: number, totalTimeTakenMillis?: number | null | undefined, averageTimeTakenMillis?: number | null | undefined, successRate: number, totalGames: number, username: string, winDistribution: Array<number>, game?: { __typename?: 'GameState', date: string, finished: boolean } | null | undefined };
+export type PlayersGamesQuery = { __typename?: 'Query', playersGames?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string } | null | undefined> | null | undefined };
 
 export type TodaysGamesQueryVariables = Exact<{
   date: Scalars['String'];
 }>;
 
 
-export type TodaysGamesQuery = { __typename?: 'Query', todaysGames?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string, stats?: { __typename?: 'Stats', currentStreak: number, bestStreak: number, gamesFailed: number, totalTimeTakenMillis?: number | null | undefined, averageTimeTakenMillis?: number | null | undefined, successRate: number, totalGames: number, username: string, winDistribution: Array<number>, game?: { __typename?: 'GameState', date: string, finished: boolean } | null | undefined } | null | undefined } | null | undefined> | null | undefined };
+export type TodaysGamesQuery = { __typename?: 'Query', todaysGames?: Array<{ __typename?: 'GameState', guesses?: Array<string> | null | undefined, date: string, id: string, solution: string, finished: boolean, _siteValidTime: string, timeTakenMillis?: number | null | undefined, username: string } | null | undefined> | null | undefined };
 
-export const StatsFieldsFragmentDoc = `
-    fragment statsFields on Stats {
-  currentStreak
-  bestStreak
-  game {
-    date
-    finished
-  }
-  gamesFailed
-  totalTimeTakenMillis
-  averageTimeTakenMillis
-  successRate
-  totalGames
-  username
-  winDistribution
-}
-    `;
 export const GameFieldsFragmentDoc = `
     fragment gameFields on GameState {
   guesses
@@ -215,11 +154,8 @@ export const GameFieldsFragmentDoc = `
   _siteValidTime
   timeTakenMillis
   username
-  stats {
-    ...statsFields
-  }
 }
-    ${StatsFieldsFragmentDoc}`;
+    `;
 export const AllGamesDocument = `
     query allGames {
   allGames {
@@ -246,32 +182,30 @@ useAllGamesQuery.getKey = (variables?: AllGamesQueryVariables) => variables === 
 ;
 
 useAllGamesQuery.fetcher = (variables?: AllGamesQueryVariables) => fetcher<AllGamesQuery, AllGamesQueryVariables>(AllGamesDocument, variables);
-export const AllStatsDocument = `
-    query allStats {
-  allStats {
-    ...statsFields
-  }
+export const AllUsernamesDocument = `
+    query allUsernames {
+  allUsers
 }
-    ${StatsFieldsFragmentDoc}`;
-export const useAllStatsQuery = <
-      TData = AllStatsQuery,
+    `;
+export const useAllUsernamesQuery = <
+      TData = AllUsernamesQuery,
       TError = Error
     >(
-      variables?: AllStatsQueryVariables,
-      options?: UseQueryOptions<AllStatsQuery, TError, TData>
+      variables?: AllUsernamesQueryVariables,
+      options?: UseQueryOptions<AllUsernamesQuery, TError, TData>
     ) =>
-    useQuery<AllStatsQuery, TError, TData>(
-      variables === undefined ? ['allStats'] : ['allStats', variables],
-      fetcher<AllStatsQuery, AllStatsQueryVariables>(AllStatsDocument, variables),
+    useQuery<AllUsernamesQuery, TError, TData>(
+      variables === undefined ? ['allUsernames'] : ['allUsernames', variables],
+      fetcher<AllUsernamesQuery, AllUsernamesQueryVariables>(AllUsernamesDocument, variables),
       options
     );
-useAllStatsQuery.document = AllStatsDocument;
+useAllUsernamesQuery.document = AllUsernamesDocument;
 
 
-useAllStatsQuery.getKey = (variables?: AllStatsQueryVariables) => variables === undefined ? ['allStats'] : ['allStats', variables];
+useAllUsernamesQuery.getKey = (variables?: AllUsernamesQueryVariables) => variables === undefined ? ['allUsernames'] : ['allUsernames', variables];
 ;
 
-useAllStatsQuery.fetcher = (variables?: AllStatsQueryVariables) => fetcher<AllStatsQuery, AllStatsQueryVariables>(AllStatsDocument, variables);
+useAllUsernamesQuery.fetcher = (variables?: AllUsernamesQueryVariables) => fetcher<AllUsernamesQuery, AllUsernamesQueryVariables>(AllUsernamesDocument, variables);
 export const SaveGameDocument = `
     mutation saveGame($id: ID!, $game: GameInput!) {
   saveGame(id: $id, game: $game) {
@@ -367,23 +301,6 @@ usePlayersGamesQuery.getKey = (variables: PlayersGamesQueryVariables) => ['playe
 ;
 
 usePlayersGamesQuery.fetcher = (variables: PlayersGamesQueryVariables) => fetcher<PlayersGamesQuery, PlayersGamesQueryVariables>(PlayersGamesDocument, variables);
-export const UpdateStatsDocument = `
-    mutation updateStats($stats: StatsInput!, $id: ID!) {
-  saveStats(id: $id, stats: $stats) {
-    id
-  }
-}
-    `;
-export const useUpdateStatsMutation = <
-      TError = Error,
-      TContext = unknown
-    >(options?: UseMutationOptions<UpdateStatsMutation, TError, UpdateStatsMutationVariables, TContext>) =>
-    useMutation<UpdateStatsMutation, TError, UpdateStatsMutationVariables, TContext>(
-      'updateStats',
-      (variables?: UpdateStatsMutationVariables) => fetcher<UpdateStatsMutation, UpdateStatsMutationVariables>(UpdateStatsDocument, variables)(),
-      options
-    );
-useUpdateStatsMutation.fetcher = (variables: UpdateStatsMutationVariables) => fetcher<UpdateStatsMutation, UpdateStatsMutationVariables>(UpdateStatsDocument, variables);
 export const TodaysGamesDocument = `
     query todaysGames($date: String!) {
   todaysGames(date: $date) {

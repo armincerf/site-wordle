@@ -7,7 +7,4 @@ fragment gameFields on GameState {
   _siteValidTime
   timeTakenMillis
   username
-  stats {
-    ...statsFields
-  }
 }

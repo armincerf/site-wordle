@@ -1,10 +1,12 @@
 import { Fragment, useMemo } from 'react'
 import Table from '../Table'
 import { Dialog, Transition } from '@headlessui/react'
+import { statsForGames } from '../../lib/stats'
 import { XCircleIcon } from '@heroicons/react/outline'
-import { useAllStatsQuery } from '../../generated/graphql'
 import { notEmpty } from '../../helpers'
 import prettyMilliseconds from 'pretty-ms'
+import { useAllGamesQuery } from '../../generated/graphql'
+import _ from 'lodash'
 
 type Props = {
   isOpen: boolean
@@ -12,25 +14,27 @@ type Props = {
 }
 
 export const LeaderboardModal = ({ isOpen, handleClose }: Props) => {
-  const statsQuery = useAllStatsQuery(undefined, { enabled: isOpen })
+  const { data: gamesData } = useAllGamesQuery(undefined, {
+    enabled: isOpen,
+    select: (game) => {
+      return {
+        ...game,
+        allGames: game?.allGames?.filter(notEmpty) ?? [],
+      }
+    },
+  })
   const data = useMemo(() => {
-    return statsQuery.data?.allStats
-      ?.filter((stat) => stat?.game?.date)
-      .map((usersGame) => {
-        const winDistribution = usersGame?.winDistribution || [0]
-        const numberOfGames = usersGame?.totalGames || 0
-        const totalGuesses = winDistribution.reduce(
-          (acc, curr, idx) => acc + curr * (idx + 1),
-          0
-        )
-
+    if (isOpen && gamesData?.allGames) {
+      const groupedGames = _.groupBy(gamesData.allGames, 'username')
+      const stats = Object.entries(groupedGames).map(([username, games]) => {
         return {
-          ...usersGame,
-          averageGuesses: totalGuesses / numberOfGames,
+          ...statsForGames(games),
+          username,
         }
       })
-      .filter(notEmpty)
-  }, [statsQuery.data])
+      return stats.sort((a, b) => b.successRate - a.successRate)
+    }
+  }, [gamesData, isOpen])
 
   const cols = useMemo(() => {
     return [
@@ -41,10 +45,6 @@ export const LeaderboardModal = ({ isOpen, handleClose }: Props) => {
       {
         Header: 'Current Streak',
         accessor: 'currentStreak',
-      },
-      {
-        Header: 'Best Streak',
-        accessor: 'bestStreak',
       },
       {
         Header: 'Total Games',
@@ -80,7 +80,7 @@ export const LeaderboardModal = ({ isOpen, handleClose }: Props) => {
       },
       {
         Header: 'Last Played',
-        accessor: 'game.date',
+        accessor: 'lastPlayed',
       },
     ]
   }, [])
@@ -140,7 +140,7 @@ export const LeaderboardModal = ({ isOpen, handleClose }: Props) => {
                     Statistics
                   </Dialog.Title>
                   <div className="w-full overflow-auto">
-                    {data && <Table columns={cols} data={data} />}
+                    {gamesData && <Table columns={cols} data={data} />}
                   </div>
                 </div>
               </div>

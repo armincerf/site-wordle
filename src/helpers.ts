@@ -45,8 +45,4 @@ export function genGameId(username: string) {
   return username + 'wordleGame' + date
 }
 
-export function genStatsId(username: string) {
-  return username + 'wordleStats'
-}
-
 export const joinList = (list: string[]) => formatter.format(list)

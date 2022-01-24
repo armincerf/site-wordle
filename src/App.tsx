@@ -5,7 +5,6 @@ import {
   useGameForIdQuery,
   useGameHistoryQuery,
   useSaveGameMutation,
-  useUpdateStatsMutation,
 } from './generated/graphql'
 import { useState, useEffect } from 'react'
 import { Alert } from './components/alerts/Alert'
@@ -17,12 +16,11 @@ import { LeaderboardModal } from './components/modals/LeaderboardModal'
 import { WinModal } from './components/modals/WinModal'
 import { StatsModal } from './components/modals/StatsModal'
 import { isWordInWordList, isWinningWord, solution } from './lib/words'
-import { addStatsForCompletedGame, loadStats } from './lib/stats'
 import {
   loadGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
 } from './lib/localStorage'
-import { dateStr, genGameId, genStatsId, notEmpty } from './helpers'
+import { dateStr, genGameId, notEmpty } from './helpers'
 import { useQueryClient } from 'react-query'
 
 function App({ username }: { username: string }) {
@@ -40,7 +38,6 @@ function App({ username }: { username: string }) {
   const [timeTaken, setTimeTaken] = useState(0)
   const date = dateStr()
   const id = genGameId(username)
-  const statsId = genStatsId(username)
 
   const { data, isLoading } = useGameForIdQuery({ id })
   const gameState = data?.gameForId
@@ -63,19 +60,11 @@ function App({ username }: { username: string }) {
     return loaded.guesses
   })
 
-  const [stats, setStats] = useState(() => loadStats())
   const queryClient = useQueryClient()
   const updateMutation = useSaveGameMutation({
     onSettled: () => {
       console.log('saved game')
       queryClient.refetchQueries(useGameHistoryQuery.getKey({ id }))
-      queryClient.refetchQueries(useGameForIdQuery.getKey({ id }))
-    },
-  })
-  const updateStatsMutation = useUpdateStatsMutation({
-    onSettled: () => {
-      console.log('saved stats')
-
       queryClient.refetchQueries(useGameForIdQuery.getKey({ id }))
     },
   })
@@ -107,7 +96,6 @@ function App({ username }: { username: string }) {
           timeTakenMillis: timeTaken,
           guesses,
           solution,
-          statsId,
         },
       })
       saveGameStateToLocalStorage({ guesses, solution })
@@ -157,32 +145,10 @@ function App({ username }: { username: string }) {
       }
 
       if (winningWord) {
-        const newStats = addStatsForCompletedGame(
-          username,
-          stats,
-          guesses.length,
-          timeTaken
-        )
-        updateStatsMutation.mutate({
-          id: statsId,
-          stats: newStats,
-        })
-        setStats(newStats)
-        return setIsGameWon(true)
+        setIsGameWon(true)
       }
 
       if (guesses.length === 5) {
-        const newStats = addStatsForCompletedGame(
-          username,
-          stats,
-          guesses.length + 1,
-          timeTaken
-        )
-        updateStatsMutation.mutate({
-          id: statsId,
-          stats: newStats,
-        })
-        setStats(newStats)
         setIsGameLost(true)
         return setTimeout(() => {
           setIsGameLost(false)
@@ -204,7 +170,7 @@ function App({ username }: { username: string }) {
         isOpen={shareComplete}
         variant="success"
       />
-      <div className="flex w-80 mx-auto items-center mb-8 space-x-2">
+      <div className="flex w-72 mx-auto items-center mb-8 space-x-2">
         <h1 className="text-xl grow font-bold">Playing as {username}</h1>
         <InformationCircleIcon
           className="h-6 w-6 cursor-pointer"

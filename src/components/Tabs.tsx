@@ -29,7 +29,7 @@ export function UserTabs({
       </div>
       <div className="hidden sm:block">
         <nav
-          className="relative z-0 rounded-lg shadow flex divide-x divide-gray-200"
+          className="relative z-0 overflow-x-auto rounded-lg shadow flex divide-x divide-gray-200"
           aria-label="Tabs"
         >
           {usernames.map((name, tabIdx) => {
@@ -44,7 +44,7 @@ export function UserTabs({
                     : 'text-gray-500 hover:text-gray-700',
                   tabIdx === 0 ? 'rounded-l-lg' : '',
                   tabIdx === usernames.length - 1 ? 'rounded-r-lg' : '',
-                  'group relative min-w-0 flex-1 overflow-hidden bg-white py-4 px-4 text-sm font-medium text-center hover:bg-gray-50 focus:z-10'
+                  'group relative min-w-fit flex-1 overflow-hidden bg-white py-4 px-4 text-sm font-medium text-center hover:bg-gray-50 focus:z-10'
                 )}
                 aria-current={isCurrent ? 'page' : undefined}
               >

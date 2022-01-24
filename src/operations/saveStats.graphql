@@ -1,5 +1,0 @@
-mutation updateStats($stats: StatsInput!, $id: ID!) {
-  saveStats(id: $id, stats: $stats) {
-    id
-  }
-}

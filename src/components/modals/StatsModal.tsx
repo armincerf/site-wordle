@@ -6,7 +6,12 @@ import { XCircleIcon } from '@heroicons/react/outline'
 import { StatBar } from '../stats/StatBar'
 import { Histogram } from '../stats/Histogram'
 import { dateStr, notEmpty } from '../../helpers'
-import { useAllStatsQuery, useTodaysGamesQuery } from '../../generated/graphql'
+import {
+  useAllGamesQuery,
+  useAllUsernamesQuery,
+  useTodaysGamesQuery,
+} from '../../generated/graphql'
+import { statsForGames } from '../../lib/stats'
 import { MiniGrid } from '../mini-grid/MiniGrid'
 import prettyMilliseconds from 'pretty-ms'
 
@@ -18,20 +23,47 @@ type Props = {
 
 export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
   const date = dateStr()
-  const { data } = useTodaysGamesQuery(
+  const { data: gamesData } = useTodaysGamesQuery(
     { date },
-    { enabled: isOpen, refetchInterval: 5000 }
+    {
+      enabled: isOpen,
+      refetchInterval: 5000,
+      select: (game) => {
+        return {
+          ...game,
+          todaysGames: game?.todaysGames?.filter(notEmpty) ?? [],
+        }
+      },
+    }
   )
-  const stats = useAllStatsQuery(undefined, { enabled: isOpen }).data?.allStats
   const [user, setUser] = useState(username)
-  const allUsers =
-    _.uniq(stats?.map((stat) => stat?.username).filter(notEmpty)) || []
+  const { data: usersData } = useAllUsernamesQuery()
+  const allUsers = _.uniq(usersData?.allUsers).filter(notEmpty)
+  const { data: allGamesData } = useAllGamesQuery(undefined, {
+    enabled: isOpen,
+    select: (games) => {
+      return {
+        ...games,
+        allGames:
+          games?.allGames?.filter((game) => game?.finished)?.filter(notEmpty) ??
+          [],
+      }
+    },
+  })
 
-  const currentGame = data?.todaysGames?.find((game) => game?.username === user)
-  const myGame = data?.todaysGames?.find((game) => game?.username === username)
+  const myGames = allGamesData?.allGames.filter(
+    (game) => game.username === user
+  )
+
+  const myStats = myGames && statsForGames(myGames)
+  const currentGame = gamesData?.todaysGames?.find(
+    (game) => game?.username === user
+  )
+
+  const myGame = gamesData?.todaysGames?.find(
+    (game) => game?.username === username
+  )
   const canSpoil = myGame?.finished
-
-  const myStats = stats?.find((stat) => stat?.username === user)
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
@@ -106,14 +138,15 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                               showLetters={canSpoil}
                               guesses={currentGame.guesses}
                             />
-                            {!!currentGame?.timeTakenMillis && (
-                              <p className="text-sm text-gray-600">
-                                Time Taken:{' '}
-                                {prettyMilliseconds(
-                                  currentGame.timeTakenMillis
-                                )}
-                              </p>
-                            )}
+                            {currentGame?.finished &&
+                              !!currentGame?.timeTakenMillis && (
+                                <p className="text-sm text-gray-600">
+                                  Time Taken:{' '}
+                                  {prettyMilliseconds(
+                                    currentGame.timeTakenMillis
+                                  )}
+                                </p>
+                              )}
                           </>
                         ) : (
                           <p className="text-lg text-gray-600 my-2">

@@ -1,5 +1,0 @@
-query allStats {
-  allStats {
-    ...statsFields
-  }
-}
