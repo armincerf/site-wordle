@@ -63,8 +63,8 @@ type Stats {
   currentStreak: Int!
   bestStreak: Int!
   totalGames: Int!
-  averageTimeTakenMillis: Int!
-  totalTimeTakenMillis: Int!
+  averageTimeTakenMillis: Int
+  totalTimeTakenMillis: Int
   successRate: Float!
   game: GameState
     @site(

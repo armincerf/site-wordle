@@ -31,8 +31,7 @@ export const addStatsForCompletedGame = (
   }
 
   stats.successRate = getSuccessRate(stats)
-
-  stats.totalTimeTakenMillis += timeTaken
+  stats.totalTimeTakenMillis = (stats?.totalTimeTakenMillis || 0) + timeTaken
 
   stats.averageTimeTakenMillis = Math.round(
     stats.totalTimeTakenMillis / stats.totalGames

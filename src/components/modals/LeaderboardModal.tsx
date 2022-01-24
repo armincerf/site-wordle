@@ -4,6 +4,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { XCircleIcon } from '@heroicons/react/outline'
 import { useAllStatsQuery } from '../../generated/graphql'
 import { notEmpty } from '../../helpers'
+import prettyMilliseconds from 'pretty-ms'
 
 type Props = {
   isOpen: boolean
@@ -15,6 +16,19 @@ export const LeaderboardModal = ({ isOpen, handleClose }: Props) => {
   const data = useMemo(() => {
     return statsQuery.data?.allStats
       ?.filter((stat) => stat?.game?.date)
+      .map((usersGame) => {
+        const winDistribution = usersGame?.winDistribution || [0]
+        const numberOfGames = usersGame?.totalGames || 0
+        const totalGuesses = winDistribution.reduce(
+          (acc, curr, idx) => acc + curr * (idx + 1),
+          0
+        )
+
+        return {
+          ...usersGame,
+          averageGuesses: totalGuesses / numberOfGames,
+        }
+      })
       .filter(notEmpty)
   }, [statsQuery.data])
 
@@ -43,6 +57,26 @@ export const LeaderboardModal = ({ isOpen, handleClose }: Props) => {
       {
         Header: 'Games Failed',
         accessor: 'gamesFailed',
+      },
+      {
+        Header: 'Average Guesses',
+        accessor: 'averageGuesses',
+      },
+      {
+        Header: 'Total Time Played',
+        accessor: 'totalTimeTakenMillis',
+        Cell: ({ cell: { value } }: any) => {
+          if (typeof value !== 'number') return ''
+          return prettyMilliseconds(value)
+        },
+      },
+      {
+        Header: 'Average Time Per Game',
+        accessor: 'averageTimeTakenMillis',
+        Cell: ({ cell: { value } }: any) => {
+          if (typeof value !== 'number') return ''
+          return prettyMilliseconds(value)
+        },
       },
       {
         Header: 'Last Played',
@@ -105,7 +139,9 @@ export const LeaderboardModal = ({ isOpen, handleClose }: Props) => {
                   >
                     Statistics
                   </Dialog.Title>
-                  {data && <Table columns={cols} data={data} />}
+                  <div className="w-full overflow-auto">
+                    {data && <Table columns={cols} data={data} />}
+                  </div>
                 </div>
               </div>
             </div>

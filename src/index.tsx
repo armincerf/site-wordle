@@ -7,7 +7,7 @@ import { ReactQueryDevtools } from 'react-query/devtools'
 import { QueryClient, QueryClientProvider } from 'react-query'
 
 const queryClient = new QueryClient()
-const username = localStorage.getItem('username')
+const username = localStorage.getItem('username')?.toLowerCase().trim()
 
 if (username) {
   ReactDOM.render(

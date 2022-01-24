@@ -244,13 +244,9 @@ function Table({ columns, data }) {
                               <span className="group text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:hidden absolute top-0 inset-x-0 p-1 bg-gray-50 pl-2">
                                 {cell.column.Header}
                               </span>
-                              {cell.column.Cell.name === 'defaultRenderer' ? (
-                                <div className="text-sm pt-2 text-gray-500">
-                                  {cell.render('Cell')}
-                                </div>
-                              ) : (
-                                cell.render('Cell')
-                              )}
+                              <div className="text-sm pt-2 text-gray-500">
+                                {cell.render('Cell')}
+                              </div>
                             </td>
                           )
                         })}

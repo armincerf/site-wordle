@@ -6,9 +6,9 @@ import { XCircleIcon } from '@heroicons/react/outline'
 import { StatBar } from '../stats/StatBar'
 import { Histogram } from '../stats/Histogram'
 import { dateStr, notEmpty } from '../../helpers'
-import { useTodaysGamesQuery } from '../../generated/graphql'
-import classNames from 'classnames'
+import { useAllStatsQuery, useTodaysGamesQuery } from '../../generated/graphql'
 import { MiniGrid } from '../mini-grid/MiniGrid'
+import prettyMilliseconds from 'pretty-ms'
 
 type Props = {
   isOpen: boolean
@@ -22,24 +22,16 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
     { date },
     { enabled: isOpen, refetchInterval: 5000 }
   )
+  const stats = useAllStatsQuery(undefined, { enabled: isOpen }).data?.allStats
   const [user, setUser] = useState(username)
   const allUsers =
-    _.uniq(
-      data?.todaysGames
-        ?.filter((game) => game?.stats?.totalGames)
-        .map((game) => game?.username)
-        .filter(notEmpty)
-    ) || []
+    _.uniq(stats?.map((stat) => stat?.username).filter(notEmpty)) || []
+
   const currentGame = data?.todaysGames?.find((game) => game?.username === user)
   const myGame = data?.todaysGames?.find((game) => game?.username === username)
   const canSpoil = myGame?.finished
-  const allStats =
-    data?.todaysGames
-      ?.map((game) => {
-        return game?.stats
-      })
-      .filter(notEmpty) || []
-  const gameStats = allStats.find((game) => game.username === user)
+
+  const myStats = stats?.find((stat) => stat?.username === user)
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
@@ -96,26 +88,38 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                   >
                     Statistics for {user}
                   </Dialog.Title>
-                  {gameStats && currentGame && currentGame?.guesses ? (
+                  {myStats ? (
                     <>
-                      <StatBar gameStats={gameStats} />
+                      <StatBar gameStats={myStats} />
                       <h4 className="text-lg leading-6 font-medium text-gray-900">
                         Guess Distribution
                       </h4>
-                      <Histogram gameStats={gameStats} />
-                      <p className="text-lg text-gray-600 my-2">Today's game</p>
-                      <div className="sm:h-64">
-                        <MiniGrid
-                          showLetters={canSpoil}
-                          guesses={currentGame.guesses}
-                        />
-                        {!!currentGame?.timeTakenMillis && (
-                          <p className="text-sm text-gray-600">
-                            Time Taken: {currentGame.timeTakenMillis / 1000}{' '}
-                            seconds
+                      <Histogram gameStats={myStats} />
+                      {currentGame && currentGame?.guesses ? (
+                        <>
+                          <p className="text-lg text-gray-600 my-2">
+                            Today's game
                           </p>
-                        )}
-                      </div>
+                          <div className="sm:h-64">
+                            <MiniGrid
+                              showLetters={canSpoil}
+                              guesses={currentGame.guesses}
+                            />
+                            {!!currentGame?.timeTakenMillis && (
+                              <p className="text-sm text-gray-600">
+                                Time Taken:{' '}
+                                {prettyMilliseconds(
+                                  currentGame.timeTakenMillis
+                                )}
+                              </p>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-lg text-gray-600 my-2">
+                          No game today
+                        </p>
+                      )}
                     </>
                   ) : (
                     <div className="text-center">

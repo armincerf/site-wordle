@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { joinList, notEmpty } from '../../helpers'
+import { dateStr, joinList, notEmpty } from '../../helpers'
 import { Dialog, Transition } from '@headlessui/react'
 import { CheckIcon } from '@heroicons/react/outline'
 import { MiniGrid } from '../mini-grid/MiniGrid'
@@ -26,6 +26,7 @@ export const WinModal = ({
   const { data } = useAllGamesQuery(undefined, { enabled: isOpen })
   const othersGames =
     data?.allGames
+      ?.filter((game) => game?.date === dateStr())
       ?.filter((game) => game?.finished)
       ?.map((game) => game?.username)
       .filter((username) => username !== me)
@@ -91,11 +92,15 @@ export const WinModal = ({
                   <div className="mt-2">
                     <MiniGrid guesses={guesses} />
                     <p className="text-sm text-gray-500">Great job.</p>
-                    {othersGames.length > 0 && (
+                    {othersGames.length > 0 ? (
                       <p>
                         {`${joinList(othersGames)} ${
                           othersGames.length === 1 ? 'has ' : 'have '
                         } also finished today's game, see how they did!`}
+                      </p>
+                    ) : (
+                      <p>
+                        {`You're the first to finish today's game, why not pester some other people to play!`}
                       </p>
                     )}
                   </div>

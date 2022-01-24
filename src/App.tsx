@@ -52,6 +52,8 @@ function App({ username }: { username: string }) {
   const [guesses, setGuesses] = useState<string[]>(() => {
     const loaded = loadGameStateFromLocalStorage()
     if (loaded?.solution !== solution) {
+      setIsGameWon(false)
+      setIsGameLost(false)
       return []
     }
     if (loaded.guesses.includes(solution)) {
@@ -78,16 +80,15 @@ function App({ username }: { username: string }) {
   })
 
   useEffect(() => {
-    if (!loadGameStateFromLocalStorage()?.guesses?.length && data?.gameForId) {
-      console.log('loading game state from server', data)
-      const guessesFromServer = data.gameForId?.guesses || []
+    if (!loadGameStateFromLocalStorage()?.guesses?.length && !isLoading) {
+      const guessesFromServer = data?.gameForId?.guesses || []
       saveGameStateToLocalStorage({
         guesses: guessesFromServer,
         solution,
       })
       setGuesses(guessesFromServer)
     }
-  }, [data])
+  }, [isLoading, data])
 
   useEffect(() => {
     if (
