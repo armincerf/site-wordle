@@ -54,6 +54,7 @@ function App({ username }: { username: string }) {
     if (loaded?.solution !== solution) {
       setIsGameWon(false)
       setIsGameLost(false)
+      localStorage.removeItem('gameState')
       return []
     }
     if (loaded.guesses.includes(solution)) {
