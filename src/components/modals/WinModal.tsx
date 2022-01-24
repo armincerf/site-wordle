@@ -6,6 +6,7 @@ import { MiniGrid } from '../mini-grid/MiniGrid'
 import { shareStatus } from '../../lib/share'
 import { XCircleIcon } from '@heroicons/react/outline'
 import { useAllGamesQuery } from '../../generated/graphql'
+import { solution } from '../../lib/words'
 
 type Props = {
   isOpen: boolean
@@ -90,7 +91,7 @@ export const WinModal = ({
                     You won!
                   </Dialog.Title>
                   <div className="mt-2">
-                    <MiniGrid guesses={guesses} />
+                    <MiniGrid guesses={guesses} solution={solution} />
                     <p className="text-sm text-gray-500">Great job.</p>
                     {othersGames.length > 0 ? (
                       <p>

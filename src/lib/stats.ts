@@ -33,7 +33,8 @@ type Game = GameFieldsFragment & {
 type Games = Array<Game>
 
 export function statsForGames(gamesInput: Games): GameStats {
-  if (!gamesInput?.[0]?.username) {
+  const finishedGames = gamesInput.filter(({ finished }) => finished === true)
+  if (!finishedGames?.[0]?.username) {
     return {
       username: '',
       currentStreak: 0,
@@ -47,7 +48,7 @@ export function statsForGames(gamesInput: Games): GameStats {
       winDistribution: [],
     }
   }
-  const games = gamesInput.map((game) => {
+  const games = finishedGames.map((game) => {
     const won = game.guesses?.includes(game.solution)
     const lost = game.guesses?.length === 6
     if (won) {

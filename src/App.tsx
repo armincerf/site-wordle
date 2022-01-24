@@ -185,7 +185,7 @@ function App({ username }: { username: string }) {
           onClick={() => setIsLeaderboardModalOpen(true)}
         />
       </div>
-      <Grid guesses={guesses} currentGuess={currentGuess} />
+      <Grid guesses={guesses} solution={solution} currentGuess={currentGuess} />
       <Keyboard
         disabled={isGameWon || isGameLost}
         onChar={onChar}

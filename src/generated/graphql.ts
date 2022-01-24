@@ -73,6 +73,7 @@ export type Query = {
   gameForId?: Maybe<GameState>;
   gameHistoryForId?: Maybe<Array<Maybe<GameState>>>;
   playersGames?: Maybe<Array<Maybe<GameState>>>;
+  timeTakenForGame?: Maybe<Scalars['Int']>;
   todaysGames?: Maybe<Array<Maybe<GameState>>>;
 };
 
@@ -89,6 +90,11 @@ export type QueryGameHistoryForIdArgs = {
 
 export type QueryPlayersGamesArgs = {
   username: Scalars['String'];
+};
+
+
+export type QueryTimeTakenForGameArgs = {
+  id: Scalars['ID'];
 };
 
 

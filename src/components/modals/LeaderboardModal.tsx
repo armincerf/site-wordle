@@ -140,7 +140,9 @@ export const LeaderboardModal = ({ isOpen, handleClose }: Props) => {
                     Statistics
                   </Dialog.Title>
                   <div className="w-full overflow-auto">
-                    {gamesData && <Table columns={cols} data={data} />}
+                    {isOpen && gamesData && (
+                      <Table columns={cols} data={data} />
+                    )}
                   </div>
                 </div>
               </div>

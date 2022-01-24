@@ -2,7 +2,11 @@ import { Fragment, useState } from 'react'
 import { UserTabs } from '../Tabs'
 import _ from 'lodash-es'
 import { Dialog, Transition } from '@headlessui/react'
-import { XCircleIcon } from '@heroicons/react/outline'
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  XCircleIcon,
+} from '@heroicons/react/outline'
 import { StatBar } from '../stats/StatBar'
 import { Histogram } from '../stats/Histogram'
 import { dateStr, notEmpty } from '../../helpers'
@@ -14,6 +18,7 @@ import {
 import { statsForGames } from '../../lib/stats'
 import { MiniGrid } from '../mini-grid/MiniGrid'
 import prettyMilliseconds from 'pretty-ms'
+import { PageButton } from '../Buttons'
 
 type Props = {
   isOpen: boolean
@@ -22,12 +27,13 @@ type Props = {
 }
 
 export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
-  const date = dateStr()
+  const [date, setDate] = useState(dateStr())
+  const isToday = date === dateStr()
+  const [dateOffset, setDateOffset] = useState(0)
   const { data: gamesData } = useTodaysGamesQuery(
     { date },
     {
       enabled: isOpen,
-      refetchInterval: 5000,
       select: (game) => {
         return {
           ...game,
@@ -36,6 +42,7 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
       },
     }
   )
+
   const [user, setUser] = useState(username)
   const { data: usersData } = useAllUsernamesQuery()
   const allUsers = _.uniq(usersData?.allUsers).filter(notEmpty)
@@ -44,9 +51,7 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
     select: (games) => {
       return {
         ...games,
-        allGames:
-          games?.allGames?.filter((game) => game?.finished)?.filter(notEmpty) ??
-          [],
+        allGames: games?.allGames?.filter(notEmpty) ?? [],
       }
     },
   })
@@ -56,6 +61,7 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
   )
 
   const myStats = myGames && statsForGames(myGames)
+
   const currentGame = gamesData?.todaysGames?.find(
     (game) => game?.username === user
   )
@@ -128,13 +134,32 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                       </h4>
                       <Histogram gameStats={myStats} />
 
-                      <div className="sm:h-80">
+                      <div className="sm:h-80 relative">
+                        <div className="absolute left-0 top-0">
+                          <PageButton
+                            onClick={() => {
+                              setDateOffset(dateOffset - 1)
+                              setDate(dateStr(dateOffset - 1))
+                            }}
+                            disabled={
+                              !myGames.find(
+                                (game) => game.date === dateStr(dateOffset - 1)
+                              )
+                            }
+                          >
+                            <>
+                              <ArrowLeftIcon className="w-3 h-3 mr-1" />
+                              {dateStr(dateOffset - 1).substring(0, 5)}
+                            </>
+                          </PageButton>
+                        </div>
                         {currentGame && currentGame?.guesses ? (
                           <>
                             <p className="text-lg text-gray-600 my-2">
-                              Today's game
+                              {isToday ? "Today's Game" : `Game on ${date}`}
                             </p>
                             <MiniGrid
+                              solution={currentGame.solution}
                               showLetters={canSpoil}
                               guesses={currentGame.guesses}
                             />
@@ -149,10 +174,28 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                               )}
                           </>
                         ) : (
-                          <p className="text-lg text-gray-600 my-2">
-                            No game today
+                          <p className="text-lg text-gray-600 my-8 sm:my-0">
+                            {isToday ? 'No game today' : `No game on ${date}`}
                           </p>
                         )}
+                        <div className="absolute right-0 top-0">
+                          <PageButton
+                            onClick={() => {
+                              setDateOffset(dateOffset + 1)
+                              setDate(dateStr(dateOffset + 1))
+                            }}
+                            disabled={
+                              !myGames.find(
+                                (game) => game.date === dateStr(dateOffset + 1)
+                              )
+                            }
+                          >
+                            <>
+                              {dateStr(dateOffset + 1).substring(0, 5)}
+                              <ArrowRightIcon className="w-3 h-3 mr-1" />
+                            </>
+                          </PageButton>
+                        </div>
                       </div>
                     </>
                   ) : (
