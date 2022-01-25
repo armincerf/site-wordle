@@ -112,7 +112,7 @@ export function statsForGames(gamesInput: Games): GameStats {
 
   return {
     username: games[0].username,
-    lastPlayed: gamesDesc?.[gamesDesc.length - 1]?.date ?? '',
+    lastPlayed: gamesDesc?.[0]?.date ?? '',
     averageGuesses,
     totalGames,
     totalTimeTakenMillis,

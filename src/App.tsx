@@ -1,5 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { InformationCircleIcon, UserGroupIcon } from '@heroicons/react/outline'
+import Countdown from 'react-countdown'
+import {
+  CogIcon,
+  InformationCircleIcon,
+  UserGroupIcon,
+} from '@heroicons/react/outline'
 import { ChartBarIcon } from '@heroicons/react/outline'
 import {
   useGameForIdQuery,
@@ -13,6 +18,7 @@ import { Keyboard } from './components/keyboard/Keyboard'
 import { AboutModal } from './components/modals/AboutModal'
 import { InfoModal } from './components/modals/InfoModal'
 import { LeaderboardModal } from './components/modals/LeaderboardModal'
+import { SettingsModal } from './components/modals/SettingsModal'
 import { WinModal } from './components/modals/WinModal'
 import { StatsModal } from './components/modals/StatsModal'
 import { isWordInWordList, isWinningWord, solution } from './lib/words'
@@ -20,7 +26,7 @@ import {
   loadGameStateFromLocalStorage,
   saveGameStateToLocalStorage,
 } from './lib/localStorage'
-import { dateStr, genGameId, notEmpty } from './helpers'
+import { dateStr, genGameId, tomorrow } from './helpers'
 import { useQueryClient } from 'react-query'
 
 function App({ username }: { username: string }) {
@@ -28,6 +34,7 @@ function App({ username }: { username: string }) {
   const [isGameWon, setIsGameWon] = useState(false)
   const [isWinModalOpen, setIsWinModalOpen] = useState(false)
   const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false)
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false)
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
@@ -35,16 +42,12 @@ function App({ username }: { username: string }) {
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [shareComplete, setShareComplete] = useState(false)
-  const [timeTaken, setTimeTaken] = useState(0)
-  const date = dateStr()
+  const [date] = useState(dateStr())
   const id = genGameId(username)
+  const tomorrowDate = tomorrow()
 
   const { data, isLoading } = useGameForIdQuery({ id })
   const gameState = data?.gameForId
-
-  const historyQuery = useGameHistoryQuery({ id })
-  const startedAt =
-    historyQuery.data?.gameHistoryForId?.filter(notEmpty)?.[0]?._siteValidTime
 
   const [guesses, setGuesses] = useState<string[]>(() => {
     const loaded = loadGameStateFromLocalStorage()
@@ -81,6 +84,13 @@ function App({ username }: { username: string }) {
   }, [isLoading, data])
 
   useEffect(() => {
+    if (data?.gameForId?.date && data?.gameForId?.date !== date) {
+      localStorage.removeItem('gameState')
+      window.location.reload()
+    }
+  }, [data, date])
+
+  useEffect(() => {
     if (
       username &&
       !isLoading &&
@@ -93,7 +103,6 @@ function App({ username }: { username: string }) {
           date,
           username,
           finished: isGameLost || isGameWon,
-          timeTakenMillis: timeTaken,
           guesses,
           solution,
         },
@@ -138,12 +147,6 @@ function App({ username }: { username: string }) {
       setGuesses([...guesses, currentGuess])
       setCurrentGuess('')
 
-      if (startedAt && !gameState?.timeTakenMillis) {
-        const now = new Date().getTime()
-        let millis = now - new Date(startedAt).getTime()
-        setTimeTaken(millis)
-      }
-
       if (winningWord) {
         setIsGameWon(true)
       }
@@ -170,8 +173,12 @@ function App({ username }: { username: string }) {
         isOpen={shareComplete}
         variant="success"
       />
-      <div className="flex w-72 mx-auto items-center mb-8 space-x-2">
+      <div className="flex w-64 sm:w-80 mx-auto items-center mb-8 space-x-2">
         <h1 className="text-xl grow font-bold">Playing as {username}</h1>
+        <CogIcon
+          className="w-6 h-6 cursor-pointer"
+          onClick={() => setIsSettingsModalOpen(true)}
+        />
         <InformationCircleIcon
           className="h-6 w-6 cursor-pointer"
           onClick={() => setIsInfoModalOpen(true)}
@@ -186,6 +193,14 @@ function App({ username }: { username: string }) {
         />
       </div>
       <Grid guesses={guesses} solution={solution} currentGuess={currentGuess} />
+      {(isGameWon || isGameLost) && (
+        <div className="flex font-bold text-sm flex-col justify-center items-center mb-5">
+          NEXT JUXTLE
+          <div className="text-3xl">
+            <Countdown daysInHours date={tomorrowDate} />
+          </div>
+        </div>
+      )}
       <Keyboard
         disabled={isGameWon || isGameLost}
         onChar={onChar}
@@ -212,6 +227,10 @@ function App({ username }: { username: string }) {
       <InfoModal
         isOpen={isInfoModalOpen}
         handleClose={() => setIsInfoModalOpen(false)}
+      />
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        handleClose={() => setIsSettingsModalOpen(false)}
       />
       <LeaderboardModal
         isOpen={isLeaderboardModalOpen}

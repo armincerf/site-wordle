@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 import classnames from 'classnames'
 import { KeyValue } from '../../lib/keyboard'
 import { CharStatus } from '../../lib/statuses'
+import { loadColourBlindMode } from '../../lib/localStorage'
 
 type Props = {
   children?: ReactNode
@@ -16,8 +17,10 @@ export const Key = ({
   status,
   width = 40,
   value,
+    }
   onClick,
 }: Props) => {
+  const colourBlindMode = loadColourBlindMode()
   const classes = classnames(
     'flex items-center justify-center rounded mx-0.5 text-xs font-bold cursor-pointer',
     {
@@ -27,6 +30,10 @@ export const Key = ({
         status === 'correct',
       'bg-yellow-500 hover:bg-yellow-600 active:bg-yellow-700 text-white':
         status === 'present',
+      'bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white':
+        colourBlindMode && status === 'correct',
+      'bg-blue-300 hover:bg-blue-400 active:bg-blue-500 text-white':
+        colourBlindMode && status === 'present',
     }
   )
 
