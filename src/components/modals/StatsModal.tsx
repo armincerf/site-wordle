@@ -142,6 +142,7 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                               setDate(dateStr(dateOffset - 1))
                             }}
                             disabled={
+                              currentGame &&
                               !myGames.find(
                                 (game) => game.date === dateStr(dateOffset - 1)
                               )
@@ -185,6 +186,7 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                               setDate(dateStr(dateOffset + 1))
                             }}
                             disabled={
+                              currentGame &&
                               !myGames.find(
                                 (game) => game.date === dateStr(dateOffset + 1)
                               )

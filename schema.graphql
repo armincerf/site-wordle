@@ -47,7 +47,6 @@ type Mutation {
 input GameInput {
   username: String!
   guesses: [String!]!
-  finished: Boolean!
   timeTakenMillis: Int
   date: String!
   solution: String!

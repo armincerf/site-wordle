@@ -22,10 +22,6 @@ import { SettingsModal } from './components/modals/SettingsModal'
 import { WinModal } from './components/modals/WinModal'
 import { StatsModal } from './components/modals/StatsModal'
 import { isWordInWordList, isWinningWord, solution } from './lib/words'
-import {
-  loadGameStateFromLocalStorage,
-  saveGameStateToLocalStorage,
-} from './lib/localStorage'
 import { dateStr, genGameId, tomorrow } from './helpers'
 import { useQueryClient } from 'react-query'
 
@@ -42,26 +38,14 @@ function App({ username }: { username: string }) {
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [shareComplete, setShareComplete] = useState(false)
-  const [date] = useState(dateStr())
+  const date = dateStr()
   const id = genGameId(username)
   const tomorrowDate = tomorrow()
 
-  const { data, isLoading } = useGameForIdQuery({ id })
-  const gameState = data?.gameForId
-
-  const [guesses, setGuesses] = useState<string[]>(() => {
-    const loaded = loadGameStateFromLocalStorage()
-    if (loaded?.solution !== solution) {
-      setIsGameWon(false)
-      setIsGameLost(false)
-      localStorage.removeItem('gameState')
-      return []
-    }
-    if (loaded.guesses.includes(solution)) {
-      setIsGameWon(true)
-    }
-    return loaded.guesses
-  })
+  const { data } = useGameForIdQuery({ id })
+  const game = data?.gameForId
+  const guessesFromServer = game?.date === date && game?.guesses
+  const [guesses, setGuesses] = useState<string[]>(guessesFromServer || [])
 
   const queryClient = useQueryClient()
   const updateMutation = useSaveGameMutation({
@@ -73,43 +57,10 @@ function App({ username }: { username: string }) {
   })
 
   useEffect(() => {
-    if (!loadGameStateFromLocalStorage()?.guesses?.length && !isLoading) {
-      const guessesFromServer = data?.gameForId?.guesses || []
-      saveGameStateToLocalStorage({
-        guesses: guessesFromServer,
-        solution,
-      })
-      setGuesses(guessesFromServer)
+    if (game?.date !== date) {
+      setGuesses([])
     }
-  }, [isLoading, data])
-
-  useEffect(() => {
-    if (data?.gameForId?.date && data?.gameForId?.date !== date) {
-      localStorage.removeItem('gameState')
-      window.location.reload()
-    }
-  }, [data, date])
-
-  useEffect(() => {
-    if (
-      username &&
-      !isLoading &&
-      guesses.length &&
-      (!gameState || gameState.guesses?.length !== guesses.length)
-    ) {
-      updateMutation.mutate({
-        id,
-        game: {
-          date,
-          username,
-          finished: isGameLost || isGameWon,
-          guesses,
-          solution,
-        },
-      })
-      saveGameStateToLocalStorage({ guesses, solution })
-    }
-  }, [JSON.stringify(guesses), gameState, solution])
+  }, [data])
 
   useEffect(() => {
     if (isGameWon) {
@@ -141,6 +92,16 @@ function App({ username }: { username: string }) {
         setIsWordNotFoundAlertOpen(false)
       }, 2000)
     }
+
+    updateMutation.mutate({
+      id,
+      game: {
+        date,
+        username,
+        guesses,
+        solution,
+      },
+    })
 
     const winningWord = isWinningWord(currentGuess)
     if (currentGuess.length === 5 && guesses.length < 6 && !isGameWon) {

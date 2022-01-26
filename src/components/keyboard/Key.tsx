@@ -17,7 +17,6 @@ export const Key = ({
   status,
   width = 40,
   value,
-    }
   onClick,
 }: Props) => {
   const colourBlindMode = loadColourBlindMode()

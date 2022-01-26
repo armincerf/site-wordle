@@ -35,7 +35,6 @@ export type Scalars = {
 
 export type GameInput = {
   date: Scalars['String'];
-  finished: Scalars['Boolean'];
   guesses: Array<Scalars['String']>;
   solution: Scalars['String'];
   timeTakenMillis?: InputMaybe<Scalars['Int']>;
