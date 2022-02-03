@@ -41,11 +41,21 @@ function App({ username }: { username: string }) {
   const date = dateStr()
   const id = genGameId(username)
   const tomorrowDate = tomorrow()
-
-  const { data } = useGameForIdQuery({ id })
+  const [guesses, setGuesses] = useState<string[]>([])
+  const { data } = useGameForIdQuery(
+    { id },
+    {
+      onSuccess: (data) => {
+        const game = data?.gameForId
+        const guesses = game?.guesses?.map((guess) => guess)
+        setGuesses(guesses || [])
+        if (game?.finished && guesses?.[guesses.length - 1] === game.solution) {
+          setIsGameWon(true)
+        }
+      },
+    }
+  )
   const game = data?.gameForId
-  const guessesFromServer = game?.date === date && game?.guesses
-  const [guesses, setGuesses] = useState<string[]>(guessesFromServer || [])
 
   const queryClient = useQueryClient()
   const updateMutation = useSaveGameMutation({
@@ -57,7 +67,8 @@ function App({ username }: { username: string }) {
   })
 
   useEffect(() => {
-    if (game?.date !== date) {
+    if (game?.date && game.date !== date) {
+      console.log('new game')
       setGuesses([])
     }
   }, [data])
@@ -98,7 +109,7 @@ function App({ username }: { username: string }) {
       game: {
         date,
         username,
-        guesses,
+        guesses: [...guesses, currentGuess],
         solution,
       },
     })

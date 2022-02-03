@@ -69,7 +69,8 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
   const myGame = gamesData?.todaysGames?.find(
     (game) => game?.username === username
   )
-  const canSpoil = myGame?.finished
+  const myGuesses = myGame?.guesses ?? []
+  const canSpoil = myGuesses?.[myGuesses.length - 1] === myGame?.solution
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
