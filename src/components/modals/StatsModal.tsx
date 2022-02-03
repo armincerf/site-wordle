@@ -45,7 +45,6 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
 
   const [user, setUser] = useState(username)
   const { data: usersData } = useAllUsernamesQuery()
-  const allUsers = _.uniq(usersData?.allUsers).filter(notEmpty)
   const { data: allGamesData } = useAllGamesQuery(undefined, {
     enabled: isOpen,
     select: (games) => {
@@ -55,7 +54,11 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
       }
     },
   })
-
+  const allUsers = _.uniq(usersData?.allUsers)
+    .filter(notEmpty)
+    .filter((user) => {
+      return gamesData?.todaysGames?.some((game) => game.username === user)
+    })
   const myGames = allGamesData?.allGames.filter(
     (game) => game.username === user
   )
@@ -142,12 +145,6 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                               setDateOffset(dateOffset - 1)
                               setDate(dateStr(dateOffset - 1))
                             }}
-                            disabled={
-                              currentGame &&
-                              !myGames.find(
-                                (game) => game.date === dateStr(dateOffset - 1)
-                              )
-                            }
                           >
                             <>
                               <ArrowLeftIcon className="w-3 h-3 mr-1" />
@@ -183,15 +180,12 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                         <div className="absolute right-0 top-0">
                           <PageButton
                             onClick={() => {
+                              console.log(dateOffset)
+
                               setDateOffset(dateOffset + 1)
                               setDate(dateStr(dateOffset + 1))
                             }}
-                            disabled={
-                              currentGame &&
-                              !myGames.find(
-                                (game) => game.date === dateStr(dateOffset + 1)
-                              )
-                            }
+                            disabled={dateOffset === 0}
                           >
                             <>
                               {dateStr(dateOffset + 1).substring(0, 5)}

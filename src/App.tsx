@@ -36,6 +36,7 @@ function App({ username }: { username: string }) {
   const [isNotEnoughLetters, setIsNotEnoughLetters] = useState(false)
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false)
   const [isWordNotFoundAlertOpen, setIsWordNotFoundAlertOpen] = useState(false)
+  const [isFubsyAlertOpen, setIsFubsyAlertOpen] = useState(false)
   const [isGameLost, setIsGameLost] = useState(false)
   const [shareComplete, setShareComplete] = useState(false)
   const date = dateStr()
@@ -96,6 +97,12 @@ function App({ username }: { username: string }) {
         setIsNotEnoughLetters(false)
       }, 2000)
     }
+    if (currentGuess.toLowerCase() === 'fubsy') {
+      setIsFubsyAlertOpen(true)
+      return setTimeout(() => {
+        setIsFubsyAlertOpen(false)
+      }, 2000)
+    }
 
     if (!isWordInWordList(currentGuess)) {
       setIsWordNotFoundAlertOpen(true)
@@ -136,6 +143,10 @@ function App({ username }: { username: string }) {
     <div className="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
       <Alert message="Not enough letters" isOpen={isNotEnoughLetters} />
       <Alert message="Word not found" isOpen={isWordNotFoundAlertOpen} />
+      <Alert
+        message="Sorry but you are too fat to use this word"
+        isOpen={isFubsyAlertOpen}
+      />
       <Alert
         message={`You lost, the word was ${solution}`}
         isOpen={isGameLost}
