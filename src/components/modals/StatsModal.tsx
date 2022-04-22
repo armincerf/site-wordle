@@ -74,6 +74,8 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
   )
   const myGuesses = myGame?.guesses ?? []
   const canSpoil = myGuesses?.[myGuesses.length - 1] === myGame?.solution
+  const bugFixers = ['wrk']
+  const hasMedal = bugFixers.find((fixer) => fixer === user)
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
@@ -126,9 +128,11 @@ export const StatsModal = ({ isOpen, handleClose, username }: Props) => {
                 <div className="text-center">
                   <Dialog.Title
                     as="h3"
+                    title={hasMedal ? 'Fixed a bug' : 'Stats'}
                     className="text-lg leading-6 font-medium text-gray-900"
                   >
                     Statistics for {user}
+                    {hasMedal && '🎖'}
                   </Dialog.Title>
                   {myStats ? (
                     <>
