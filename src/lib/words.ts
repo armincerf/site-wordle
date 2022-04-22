@@ -14,6 +14,8 @@ export const isWinningWord = (word: string) => {
 
 export const getWordOfDay = () => {
   const now = new Date()
+  now.setDate(now.getDate() + 1)
+  now.setHours(0, 0, 0, 0)
   const then = new Date(now.getFullYear(), 0, 1).getTime()
   const index = Math.ceil((now.getTime() - then) / 86400000)
   return {
